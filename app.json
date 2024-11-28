@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "demo",
-    "slug": "demo",
-    "scheme":"com.demo.app",
+    "name": "buynabay",
+    "slug": "buynabay",
+    "scheme":"com.buynabay.app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
