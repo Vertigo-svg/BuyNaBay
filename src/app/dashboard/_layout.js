@@ -4,15 +4,14 @@ import { View, Image, Text, StyleSheet } from 'react-native';
 import { DrawerContentScrollView, DrawerItem, DrawerItemList } from '@react-navigation/drawer';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import Icon from 'react-native-vector-icons/FontAwesome'; // Import FontAwesome icons
-import OrderSummary from './transaction'; // Updated to OrderSummary
-
+import Icon from 'react-native-vector-icons/FontAwesome'; 
+import OrderSummary from './transaction'; 
 export default function DrawerLayout() {
   const router = useRouter();
   const year = new Date().getFullYear();
   const { top, bottom } = useSafeAreaInsets();
 
-  // Handle logout action
+ 
   const handleLogout = async () => {
     router.replace('/');
   };
@@ -35,7 +34,7 @@ export default function DrawerLayout() {
                   paddingBottom: 20,
                 }}
               >
-                {/* New BuyNaBay Logo */}
+                
                 <View style={styles.avatarContainer}>
                   <Image
                     source={require('../../assets/OfficialBuyNaBay.png')}
@@ -44,7 +43,7 @@ export default function DrawerLayout() {
                 </View>
               </View>
               <DrawerItemList {...props} />
-              {/* Logout Drawer Item */}
+             
               <DrawerItem
                 label="Logout"
                 icon={() => <Icon name="sign-out" color="#1B1B41" size={25} />} // Icon for logout
@@ -67,11 +66,11 @@ export default function DrawerLayout() {
         )}
       >
         <Drawer.Screen
-          name="(tabs)" // Home screen
+          name="(tabs)" 
           options={{
             drawerLabel: 'Home',
             drawerIcon: () => <Icon name="home" size={25} color="#FDAD00" />, 
-            headerShown: false, // Remove the header
+            headerShown: false, 
           }}
         />
         <Drawer.Screen
