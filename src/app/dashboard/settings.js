@@ -1,13 +1,13 @@
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, StyleSheet, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useNavigation } from '@react-navigation/native'; // Import the useNavigation hook
+import { useNavigation } from '@react-navigation/native'; 
 
 export default function Settings() {
-  const navigation = useNavigation(); // Initialize the navigation object
+  const navigation = useNavigation(); 
 
   const openDrawer = () => {
-    navigation.openDrawer(); // Open the drawer programmatically when clicked
+    navigation.openDrawer(); 
   };
 
   return (
@@ -66,10 +66,10 @@ export default function Settings() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1B1B41', // Dark blue background for the settings screen
+    backgroundColor: '#1B1B41', 
   },
   header: {
-    position: 'absolute', // Fix header on top
+    position: 'absolute', 
     top: 0,
     left: 0,
     right: 0,
@@ -97,14 +97,14 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingTop: 80, // Give space for the fixed header
+    paddingTop: 80, 
     paddingHorizontal: 20,
   },
   sectionLabel: {
     fontSize: 18,
     fontWeight: 'bold',
     marginVertical: 10,
-    color: '#FDAD00', // Vibrant yellow color for section labels
+    color: '#FDAD00', 
   },
   settingOption: {
     flexDirection: 'row',
@@ -116,11 +116,11 @@ const styles = StyleSheet.create({
   settingText: {
     fontSize: 16,
     marginLeft: 10,
-    color: '#fff', // White text for settings options
+    color: '#fff', 
   },
   icon: {
     marginRight: 10,
-    color: '#FDAD00', // Vibrant yellow color for icons
+    color: '#FDAD00', 
   },
   footerSpacing: {
     height: 50,
