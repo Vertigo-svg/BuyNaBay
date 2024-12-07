@@ -98,7 +98,7 @@ export default function DrawerLayout() {
           component={OrderSummary} // Linking the OrderSummary component
           options={{
             drawerLabel: 'Order Summary',
-            headerShown: false, // Remove the header
+            headerShown: false, 
             drawerIcon: () => <Icon name="shopping-cart" size={25} color="#FDAD00" />, // Icon for Order Summary
             drawerLabelStyle: { fontSize: 18 },
           }}
@@ -108,7 +108,7 @@ export default function DrawerLayout() {
   );
 }
 
-// Avatar and theme styling for BuyNaBay
+
 const styles = StyleSheet.create({
   avatarContainer: {
     width: 150,
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1B1B41', // BuyNaBay theme color
+    backgroundColor: '#1B1B41', 
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -128,10 +128,10 @@ const styles = StyleSheet.create({
   avatar: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain', // Ensure logo is properly resized
+    resizeMode: 'contain', 
   },
   footerText: {
-    color: '#1B1B41', // Adjusted footer text color for BuyNaBay theme
+    color: '#1B1B41', 
     fontSize: 14,
     fontWeight: '300',
   },
