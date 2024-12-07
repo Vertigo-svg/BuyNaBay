@@ -70,36 +70,35 @@ export default function DrawerLayout() {
           name="(tabs)" // Home screen
           options={{
             drawerLabel: 'Home',
-            drawerIcon: () => <Icon name="home" size={25} color="#FDAD00" />, // Icon for home
-            drawerLabelStyle: { fontSize: 18 },
+            drawerIcon: () => <Icon name="home" size={25} color="#FDAD00" />, 
             headerShown: false, // Remove the header
           }}
         />
         <Drawer.Screen
-          name="settings" // Settings screen
+          name="settings" 
           options={{
             drawerLabel: 'Settings',
             headerShown: false,
-            drawerIcon: () => <Icon name="cogs" size={25} color="#FDAD00" />, // Icon for settings
+            drawerIcon: () => <Icon name="cogs" size={25} color="#FDAD00" />, 
             drawerLabelStyle: { fontSize: 18 },
           }}
         />
         <Drawer.Screen
-          name="profile" // Profile screen
+          name="profile" 
           options={{
             drawerLabel: 'Profile',
             headerShown: false,
-            drawerIcon: () => <Icon name="user" size={25} color="#FDAD00" />, // Icon for profile
+            drawerIcon: () => <Icon name="user" size={25} color="#FDAD00" />, 
             drawerLabelStyle: { fontSize: 18 },
           }}
         />
         <Drawer.Screen
-          name="order-summary" // Updated to OrderSummary
-          component={OrderSummary} // Linking the OrderSummary component
+          name="order-summary" 
+          component={OrderSummary} 
           options={{
             drawerLabel: 'Order Summary',
             headerShown: false, 
-            drawerIcon: () => <Icon name="shopping-cart" size={25} color="#FDAD00" />, // Icon for Order Summary
+            drawerIcon: () => <Icon name="shopping-cart" size={25} color="#FDAD00" />, 
             drawerLabelStyle: { fontSize: 18 },
           }}
         />
