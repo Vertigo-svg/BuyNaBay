@@ -5,11 +5,11 @@ export default function OrderSummary() {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Header */}
+        
         <Text style={styles.headerText}>Order summary</Text>
         <Text style={styles.subHeaderText}>Your information is secure and encrypted</Text>
 
-        {/* Shipping Info */}
+      
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Shipping discount applied!</Text>
           <Text style={styles.addressText}>
@@ -19,11 +19,10 @@ export default function OrderSummary() {
           </Text>
         </View>
 
-        {/* Product Details */}
+     
         <View style={styles.productSection}>
           <Image
-            source={{ uri: 'https://dummyimage.com/100x100/ccc/fff&text=Product' }} // Replace with product image URL
-            style={styles.productImage}
+            source={require('../../assets/joevel.jpeg')} style={styles.profileImage}
           />
           <View>
             <Text style={styles.productTitle}>
@@ -34,7 +33,7 @@ export default function OrderSummary() {
           </View>
         </View>
 
-        {/* Order Summary */}
+        
         <View style={styles.orderSummary}>
           <Text style={styles.summaryText}>Subtotal: ₱229.00</Text>
           <Text style={styles.summaryText}>Shipping: ₱125.00</Text>
@@ -43,7 +42,7 @@ export default function OrderSummary() {
         </View>
       </ScrollView>
 
-      {/* Footer */}
+     
       <TouchableOpacity style={styles.placeOrderButton}>
         <Text style={styles.placeOrderText}>Place order</Text>
       </TouchableOpacity>
