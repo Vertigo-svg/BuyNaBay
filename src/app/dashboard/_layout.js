@@ -5,10 +5,11 @@ import { DrawerContentScrollView, DrawerItem, DrawerItemList } from '@react-navi
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Import FontAwesome icons
+import OrderSummary from './transaction'; // Updated to OrderSummary
 
 export default function DrawerLayout() {
   const router = useRouter();
-  const year = new Date().getFullYear();  
+  const year = new Date().getFullYear();
   const { top, bottom } = useSafeAreaInsets();
 
   // Handle logout action
@@ -28,26 +29,26 @@ export default function DrawerLayout() {
             >
               <View
                 style={{
-                  justifyContent: "center",
-                  alignItems: "center",
+                  justifyContent: 'center',
+                  alignItems: 'center',
                   paddingTop: 50 + top,
-                  paddingBottom: 20
+                  paddingBottom: 20,
                 }}
               >
                 {/* New BuyNaBay Logo */}
                 <View style={styles.avatarContainer}>
-                  <Image source={require('../../assets/OfficialBuyNaBay.png')} style={styles.avatar} />
+                  <Image
+                    source={require('../../assets/OfficialBuyNaBay.png')}
+                    style={styles.avatar}
+                  />
                 </View>
               </View>
               <DrawerItemList {...props} />
-              {/* Profile Drawer Item */}
-
+              {/* Logout Drawer Item */}
               <DrawerItem
                 label="Logout"
-                icon={() => (
-                  <Icon name='sign-out' color='#1B1B41' size={25} /> // Inlined icon size and color for logout
-                )}
-                labelStyle={{ fontSize: 18 }} // Inlined font size for label
+                icon={() => <Icon name="sign-out" color="#1B1B41" size={25} />} // Icon for logout
+                labelStyle={{ fontSize: 18 }}
                 onPress={handleLogout}
               />
             </DrawerContentScrollView>
@@ -55,48 +56,51 @@ export default function DrawerLayout() {
               style={{
                 justifyContent: 'center',
                 alignItems: 'center',
-                paddingBottom: 20 + bottom
+                paddingBottom: 20 + bottom,
               }}
             >
               <Text style={styles.footerText}>
                 © {year} BuyNaBay. All rights reserved.
               </Text>
-            </View> 
+            </View>
           </View>
         )}
       >
         <Drawer.Screen
-          name="(tabs)" // This is the name of the page and must match the URL from the root
+          name="(tabs)" // Home screen
           options={{
             drawerLabel: 'Home',
-            drawerIcon: () => (
-              <Icon name='home' size={25} color='#FDAD00' /> // Adjusted icon color for "BuyNaBay" theme
-            ),
-            drawerLabelStyle: { fontSize: 18 }, // Inlined font size for label
+            drawerIcon: () => <Icon name="home" size={25} color="#FDAD00" />, // Icon for home
+            drawerLabelStyle: { fontSize: 18 },
             headerShown: false, // Remove the header
           }}
         />
         <Drawer.Screen
-          name="settings" // This is the name of the page and must match the URL from the root
+          name="settings" // Settings screen
           options={{
             drawerLabel: 'Settings',
-            headerShown: false, // Remove the header
-            drawerIcon: () => (
-              <Icon name='cogs' size={25} color='#FDAD00' /> // Adjusted icon color for Settings
-            ),
-            drawerLabelStyle: { fontSize: 18 }, // Inlined font size for label
+            headerShown: false,
+            drawerIcon: () => <Icon name="cogs" size={25} color="#FDAD00" />, // Icon for settings
+            drawerLabelStyle: { fontSize: 18 },
           }}
         />
-        {/* Profile Screen (additionally, you'd create the '/profile' screen) */}
         <Drawer.Screen
-          name="profile" // The profile page should match the URL in the root
+          name="profile" // Profile screen
           options={{
             drawerLabel: 'Profile',
+            headerShown: false,
+            drawerIcon: () => <Icon name="user" size={25} color="#FDAD00" />, // Icon for profile
+            drawerLabelStyle: { fontSize: 18 },
+          }}
+        />
+        <Drawer.Screen
+          name="order-summary" // Updated to OrderSummary
+          component={OrderSummary} // Linking the OrderSummary component
+          options={{
+            drawerLabel: 'Order Summary',
             headerShown: false, // Remove the header
-            drawerIcon: () => (
-              <Icon name='user' size={25} color='#FDAD00' /> // Adjusted icon color for Profile
-            ),
-            drawerLabelStyle: { fontSize: 18 }, // Inlined font size for label
+            drawerIcon: () => <Icon name="shopping-cart" size={25} color="#FDAD00" />, // Icon for Order Summary
+            drawerLabelStyle: { fontSize: 18 },
           }}
         />
       </Drawer>
