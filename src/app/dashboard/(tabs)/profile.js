@@ -1,31 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
+import { createClient } from '@supabase/supabase-js';
+
+// Set up Supabase client
+const SUPABASE_URL = 'https://ktezclohitsiegzhhhgo.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0ZXpjbG9oaXRzaWVnemhoaGdvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczMzAyOTE0MiwiZXhwIjoyMDQ4NjA1MTQyfQ.JuqsO0J67NiPblAc6oYlJwgHRbMfS3vorbmnNzb4jhI';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
+  const [schoolID, setSchoolID] = useState('');
 
   const openDrawer = () => {
     navigation.openDrawer(); // Open the drawer when the icon is clicked
   };
 
+  useEffect(() => {
+    async function fetchSchoolID() {
+      try {
+        let { data, error } = await supabase
+          .from('users')
+          .select('school_id')
+          .single(); // Assuming you have a unique identifier or a way to find the correct profile
+          
+        if (error) {
+          console.error('Error fetching school ID:', error);
+        } else {
+          setSchoolID(data.school_id); // Set the fetched school ID to state
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    fetchSchoolID();
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={openDrawer} style={styles.drawerIcon}>
-          <Icon name="bars" size={24} color="#1B1B41" />
-        </TouchableOpacity>
-
-        <Text style={styles.logo}>Profile</Text>
-      </View>
-
+      {/* Removed header */}
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-        <Image source={require('../../assets/joevel.jpeg')} style={styles.profileImage} />
+        <Image source={require('../../../assets/joevel.jpeg')} style={styles.profileImage} />
 
-        <View style={styles.nameContainer}>
-          <Text style={styles.nameText}>Joevel Berana</Text>
+        <View style={styles.schoolIDContainer}>
+          <Text style={styles.schoolIDText}>{schoolID}</Text>
           <Icon name="check-circle" size={18} color="#FDAD00" style={styles.verifiedIcon} />
         </View>
 
@@ -60,20 +80,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#1B1B41', // Dark blue background
   },
-  header: {
-    position: 'absolute', // Fix header on top
-    top: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 16,
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    zIndex: 10,
-    borderBottomWidth: 0,
-    borderBottomColor: 'black',
-  },
   drawerIcon: {
     marginRight: 16,
   },
@@ -97,12 +103,12 @@ const styles = StyleSheet.create({
     borderColor: '#FDAD00', // Vibrant yellow border
     marginTop: 10,
   },
-  nameContainer: {
+  schoolIDContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 10,
   },
-  nameText: {
+  schoolIDText: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#fff', // White text color for name

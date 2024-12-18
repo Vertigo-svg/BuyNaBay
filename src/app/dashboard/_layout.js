@@ -40,8 +40,8 @@ export default function DrawerLayout() {
                 </View>
               </View>
               <DrawerItemList {...props} />
-              {/* Profile Drawer Item */}
 
+              {/* Profile Drawer Item */}
               <DrawerItem
                 label="Logout"
                 icon={() => (
@@ -83,18 +83,6 @@ export default function DrawerLayout() {
             headerShown: false, // Remove the header
             drawerIcon: () => (
               <Icon name='cogs' size={25} color='#FDAD00' /> // Adjusted icon color for Settings
-            ),
-            drawerLabelStyle: { fontSize: 18 }, // Inlined font size for label
-          }}
-        />
-        {/* Profile Screen (additionally, you'd create the '/profile' screen) */}
-        <Drawer.Screen
-          name="profile" // The profile page should match the URL in the root
-          options={{
-            drawerLabel: 'Profile',
-            headerShown: false, // Remove the header
-            drawerIcon: () => (
-              <Icon name='user' size={25} color='#FDAD00' /> // Adjusted icon color for Profile
             ),
             drawerLabelStyle: { fontSize: 18 }, // Inlined font size for label
           }}

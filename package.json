@@ -12,13 +12,10 @@
     "@expo-google-fonts/poppins": "^0.2.3",
     "@expo/vector-icons": "^14.0.4",
     "@react-native-async-storage/async-storage": "^1.23.1",
+    "@react-native-picker/picker": "^2.10.2",
     "@react-navigation/drawer": "^7.0.6",
-
-    "@supabase/supabase-js": "^2.47.6",
-    "batch": "^0.6.1",
-
     "@supabase/supabase-js": "^2.47.3",
-
+    "batch": "^0.6.1",
     "expo": "~52.0.17",
     "expo-app-loading": "^2.1.1",
     "expo-constants": "~17.0.3",

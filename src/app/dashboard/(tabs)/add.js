@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Button, ScrollView, Image, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { Picker } from '@react-native-picker/picker';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client
@@ -118,13 +119,19 @@ export default function Add() {
 
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Category</Text>
-        <TextInput
-          style={styles.input}
-          value={category}
-          onChangeText={setCategory}
-          placeholder="Enter item category"
-          placeholderTextColor="#A0A0A0"
-        />
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={category}
+            onValueChange={(value) => setCategory(value)}
+            style={styles.picker}
+          >
+            <Picker.Item label="Select a category" value="" />
+            <Picker.Item label="Clothes" value="Clothes" />
+            <Picker.Item label="Books" value="Books" />
+            <Picker.Item label="Shoes" value="Shoes" />
+            <Picker.Item label="Foods" value="Foods" />
+          </Picker>
+        </View>
       </View>
 
       <View style={styles.inputContainer}>
@@ -184,5 +191,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1, // Add subtle border
     borderColor: '#fff', // Accent border color for input fields
+  },
+  pickerContainer: {
+    backgroundColor: '#FFF',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#FFF',
+  },
+  picker: {
+    color: '#000',
+    fontSize: 16,
   },
 });

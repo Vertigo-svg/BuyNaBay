@@ -10,8 +10,6 @@ import { createClient } from '@supabase/supabase-js';
 const SUPABASE_URL = 'https://ktezclohitsiegzhhhgo.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0ZXpjbG9oaXRzaWVnemhoaGdvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczMzAyOTE0MiwiZXhwIjoyMDQ4NjA1MTQyfQ.JuqsO0J67NiPblAc6oYlJwgHRbMfS3vorbmnNzb4jhI';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-import { useRouter } from 'expo-router';  
-import { useFonts, Poppins_400Regular, Poppins_600SemiBold } from '@expo-google-fonts/poppins';
 
 const theme = {
   ...DefaultTheme,
@@ -37,7 +35,6 @@ const LogInPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-
 
   const handleSignIn = async () => {
     if (username && password) {
@@ -71,18 +68,6 @@ const LogInPage = () => {
   
   
   
-
-  const handleSignIn = () => {
-    if (username && password) {
-      router.push({
-        pathname: 'dashboard',
-        params: { username },
-      });
-    } else {
-      alert('Please enter correct credentials');
-    }
-  };
-
 
   const handleBackArrowPress = () => {
     router.push('/intro');
@@ -143,12 +128,6 @@ const LogInPage = () => {
               },
             }}
           />
-
-
-          <View style={styles.verifyIcon}>
-            <Icon name="check-circle" size={25} color="#4FB6EC" />
-          </View>
-
         </View>
 
         {/* Password Input */}
@@ -209,12 +188,7 @@ const LogInPage = () => {
   );
 };
 
-
 const styles = StyleSheet.create({ 
-
-// Styles for LogInPage
-const styles = StyleSheet.create({
-
   container: {
     flex: 1,
     backgroundColor: '#1b1b41',
