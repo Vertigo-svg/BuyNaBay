@@ -118,7 +118,7 @@ export default function ItemList() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.toggleDrawer()} style={styles.iconButton}>
-          <FontAwesome name="bars" size={24} color="black" />
+          <FontAwesome name="bars" size={24} color="white" />
         </TouchableOpacity>
         <View style={styles.logoContainer}>
           <Image source={require('../../../assets/OfficialBuyNaBay.png')} style={styles.logoImage} />
@@ -139,7 +139,7 @@ export default function ItemList() {
             <FontAwesome name="search" size={24} color="#FDAD00" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => console.log('Notification pressed')} style={styles.iconButton}>
-            <Ionicons name="notifications" size={24} color="black" />
+            <Ionicons name="notifications" size={24} color="white" />
           </TouchableOpacity>
         </View>
       </View>
@@ -177,7 +177,7 @@ export default function ItemList() {
             </Text>
             <Text style={styles.itemCategory}>Category: {item.category}</Text>
             <Text style={styles.itemAddress}>Address: {item.address}</Text>
-            <Image source={{ uri: item.image || 'https://example.com/placeholder.png' }} style={styles.itemImage} />
+            <Image source={{ uri: `file://${item.image}` }} style={styles.itemImage} />
             <View style={styles.iconsContainer}>
               <TouchableOpacity onPress={() => toggleLike(item)} style={styles.icon}>
                 <FontAwesome
@@ -218,114 +218,103 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     alignItems: 'center',
-    backgroundColor: '#fff',
-    zIndex: 10, // Ensure it stays above other content
-    borderBottomWidth: 0,
-    borderBottomColor: 'black',
+    backgroundColor: '#1B1B41', // Dark navy background
+  },
+  iconButton: {
+    padding: 8,
   },
   logoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
   },
   logoImage: {
-    width: 30, // Same size as the search icon
-    height: 30,
-    marginRight: 8, // Spacing between the logo and text
+    width: 40,
+    height: 40,
+    marginRight: 8,
   },
   logoText: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  iconButton: {
-    marginRight: 16,
+    color: '#FFAD1F', // Gold
   },
   searchBar: {
+    width: 200,
     height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    flex: 1,
-    marginRight: 10,
+    borderRadius: 20,
+    paddingLeft: 16,
+    backgroundColor: '#fff',
+    marginHorizontal: 8,
   },
-  headerIcons: { flexDirection: 'row', alignItems: 'center' },
+  headerIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  categoryRow: {
+    marginTop: 60,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 16,
+  },
+  categoryButton: {
+    alignItems: 'center',
+  },
+  categoryImage: {
+    width: 30,
+    height: 30,
+  },
+  categoryText: {
+    fontSize: 12,
+    marginTop: 4,
+    color: '#333', // Dark gray
+  },
+  activeCategoryText: {
+    color: '#FDAD00', // Yellow
+  },
   itemContainer: {
-    marginTop: 15,
-    marginBottom: 15, // Improved spacing below each item
-    padding: 15,
-    backgroundColor: '#FFF', // White background for item containers
-    borderRadius: 5,
-    borderWidth: 1, // Subtle border for item containers
-    borderColor: '#FF6F00', // Accent border color
-    shadowColor: '#000', // Add shadow for elevation
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+    marginBottom: 20,
+    padding: 16,
+    backgroundColor: '#FFF3E0', // Light peach background
+    borderRadius: 8,
+    elevation: 2,
   },
   itemName: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 8,
+    color: '#1B1B41', // Dark navy
   },
   itemDescription: {
     fontSize: 14,
-    color: '#555', // Lighter text for descriptions
-    marginBottom: 5,
+    color: '#333', // Dark gray
+    marginBottom: 4,
   },
   itemPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FF6F00', // Accent price color
+    color: '#FFAD1F', // Gold
+    marginBottom: 4,
   },
   itemCategory: {
     fontSize: 14,
-    color: '#666', // Slightly darker text for category
-    marginBottom: 5,
+    color: '#666', // Light gray
+    marginBottom: 4,
   },
   itemAddress: {
     fontSize: 14,
-    color: '#666', // Darker text for address
-    marginBottom: 5,
+    color: '#666', // Light gray
+    marginBottom: 8,
   },
   itemImage: {
     width: '100%',
-    height: 200,
-    borderRadius: 5,
-    marginBottom: 10,
+    height: 150,
     resizeMode: 'cover',
+    marginBottom: 8,
   },
   iconsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
   },
   icon: {
-    marginRight: 20, // Adjust spacing for icons
-  },
-  categoryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginVertical: 10,
-    marginBottom: 20,
-  },
-  categoryButton: {
-    marginTop: 45,
-    alignItems: 'center',
-    width: 70,
-  },
-  categoryImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginBottom: 5,
-  },
-  categoryText: {
-    fontSize: 12,
-  },
-  activeCategoryText: {
-    fontWeight: 'bold',
-    color: '#FF6F00', // Accent color for selected category
+    marginRight: 16,
   },
 });
