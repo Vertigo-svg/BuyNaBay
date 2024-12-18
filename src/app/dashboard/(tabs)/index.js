@@ -195,26 +195,137 @@ export default function ItemList() {
             </View>
           </View>
         )}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#FFECB3' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', padding: 16, backgroundColor: '#fff' },
-  logoContainer: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  logoImage: { width: 30, height: 30, marginRight: 8 },
-  logoText: { fontSize: 24, fontWeight: 'bold' },
-  searchBar: { borderColor: '#ccc', borderWidth: 1, borderRadius: 8, paddingHorizontal: 8, flex: 1 },
-  itemContainer: { marginTop: 15, padding: 15, backgroundColor: '#FFF', borderRadius: 5, borderWidth: 1, borderColor: '#FF6F00' },
-  itemName: { fontSize: 18, fontWeight: 'bold' },
-  itemImage: { width: '100%', height: 200, borderRadius: 5, marginBottom: 10, resizeMode: 'cover' },
-  iconsContainer: { flexDirection: 'row', marginTop: 10 },
-  icon: { marginRight: 20 },
-  categoryRow: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 20 },
-  categoryButton: { alignItems: 'center', width: 70 },
-  categoryImage: { width: 50, height: 50, borderRadius: 25, marginBottom: 5 },
-  activeCategoryText: { fontWeight: 'bold', color: '#FF6F00' },
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#FFECB3', // Light creamy background
+  },
+  header: {
+    position: 'absolute', // Fix header on top
+    top: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    zIndex: 10, // Ensure it stays above other content
+    borderBottomWidth: 0,
+    borderBottomColor: 'black',
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  logoImage: {
+    width: 30, // Same size as the search icon
+    height: 30,
+    marginRight: 8, // Spacing between the logo and text
+  },
+  logoText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  iconButton: {
+    marginRight: 16,
+  },
+  searchBar: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    flex: 1,
+    marginRight: 10,
+  },
+  headerIcons: { flexDirection: 'row', alignItems: 'center' },
+  itemContainer: {
+    marginTop: 15,
+    marginBottom: 15, // Improved spacing below each item
+    padding: 15,
+    backgroundColor: '#FFF', // White background for item containers
+    borderRadius: 5,
+    borderWidth: 1, // Subtle border for item containers
+    borderColor: '#FF6F00', // Accent border color
+    shadowColor: '#000', // Add shadow for elevation
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  itemName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  itemDescription: {
+    fontSize: 14,
+    color: '#555', // Lighter text for descriptions
+    marginBottom: 5,
+  },
+  itemPrice: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FF6F00', // Accent price color
+  },
+  itemCategory: {
+    fontSize: 14,
+    color: '#666', // Slightly darker text for category
+    marginBottom: 5,
+  },
+  itemAddress: {
+    fontSize: 14,
+    color: '#666', // Darker text for address
+    marginBottom: 5,
+  },
+  itemImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 5,
+    marginBottom: 10,
+    resizeMode: 'cover',
+  },
+  iconsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  icon: {
+    marginRight: 20, // Adjust spacing for icons
+  },
+  categoryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 10,
+    marginBottom: 20,
+  },
+  categoryButton: {
+    marginTop: 45,
+    alignItems: 'center',
+    width: 70,
+  },
+  categoryImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginBottom: 5,
+  },
+  categoryText: {
+    fontSize: 12,
+  },
+  activeCategoryText: {
+    fontWeight: 'bold',
+    color: '#FF6F00', // Accent color for selected category
+  },
 });
