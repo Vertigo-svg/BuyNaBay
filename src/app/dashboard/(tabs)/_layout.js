@@ -30,19 +30,43 @@ const DashboardLayout = () => {
           tabBarIcon: ({ focused }) => (
             <View
               style={{
-                width: 30, // Circle width
-                height: 30, // Circle height
-                borderRadius: 20, // Border radius for circular effect
-                backgroundColor: focused ? '#1B1B41' : '#F2C14E', // Background color when focused or not (gold when focused)
-                justifyContent: 'center', // Center the icon horizontally
-                alignItems: 'center', // Center the icon vertically
+                width: 30,
+                height: 30,
+                borderRadius: 20,
+                backgroundColor: focused ? '#1B1B41' : '#F2C14E',
+                justifyContent: 'center',
+                alignItems: 'center',
                 marginTop: 20,
               }}
             >
               <Icon
                 name="home"
-                size={20} // Customizable size
-                color={focused ? '#FDAD00' : '#000'} // Icon color is dark when focused, black when not
+                size={20}
+                color={focused ? '#FDAD00' : '#000'}
+              />
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="cart"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: 20,
+                backgroundColor: focused ? '#1B1B41' : '#F2C14E',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 20,
+              }}
+            >
+              <Icon
+                name="shopping-cart"
+                size={20}
+                color={focused ? '#FDAD00' : '#000'}
               />
             </View>
           ),
@@ -54,43 +78,19 @@ const DashboardLayout = () => {
           tabBarIcon: ({ focused }) => (
             <View
               style={{
-                width: 30, // Circle width
-                height: 30, // Circle height
-                borderRadius: 20, // Border radius for circular effect
-                backgroundColor: focused ? '#1B1B41' : '#F2C14E', // Background color when focused or not (gold when focused)
-                justifyContent: 'center', // Center the icon horizontally
-                alignItems: 'center', // Center the icon vertically
+                width: 30,
+                height: 30,
+                borderRadius: 20,
+                backgroundColor: focused ? '#1B1B41' : '#F2C14E',
+                justifyContent: 'center',
+                alignItems: 'center',
                 marginTop: 20,
               }}
             >
               <Icon
                 name="plus"
-                size={20} // Customizable size
-                color={focused ? '#FDAD00' : '#000'} // Icon color is dark when focused, black when not
-              />
-            </View>
-          ),
-        }}
-      />
-       <Tabs.Screen
-        name="cart"
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <View
-              style={{
-                width: 30, // Circle width
-                height: 30, // Circle height
-                borderRadius: 20, // Border radius for circular effect
-                backgroundColor: focused ? '#1B1B41' : '#F2C14E', // Background color when focused or not (gold when focused)
-                justifyContent: 'center', // Center the icon horizontally
-                alignItems: 'center', // Center the icon vertically
-                marginTop: 20,
-              }}
-            >
-              <Icon
-                name="cart-outline"
-                size={20} // Customizable size
-                color={focused ? '#FDAD00' : '#000'} // Icon color is dark when focused, black when not
+                size={20}
+                color={focused ? '#FDAD00' : '#000'}
               />
             </View>
           ),
@@ -102,19 +102,43 @@ const DashboardLayout = () => {
           tabBarIcon: ({ focused }) => (
             <View
               style={{
-                width: 30, // Circle width
-                height: 30, // Circle height
-                borderRadius: 20, // Border radius for circular effect
-                backgroundColor: focused ? '#1B1B41' : '#F2C14E', // Background color when focused or not (gold when focused)
-                justifyContent: 'center', // Center the icon horizontally
-                alignItems: 'center', // Center the icon vertically
+                width: 30,
+                height: 30,
+                borderRadius: 20,
+                backgroundColor: focused ? '#1B1B41' : '#F2C14E',
+                justifyContent: 'center',
+                alignItems: 'center',
                 marginTop: 20,
               }}
             >
               <Icon
-                name="comments" // Changed to messaging icon
-                size={20} // Customizable size
-                color={focused ? '#FDAD00' : '#000'} // Icon color is dark when focused, black when not
+                name="comments"
+                size={20}
+                color={focused ? '#FDAD00' : '#000'}
+              />
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: 20,
+                backgroundColor: focused ? '#1B1B41' : '#F2C14E',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 20,
+              }}
+            >
+              <Icon
+                name="user"
+                size={20}
+                color={focused ? '#FDAD00' : '#000'}
               />
             </View>
           ),
