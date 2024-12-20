@@ -1,18 +1,23 @@
-import React from 'react';
-import { SafeAreaView, Text, StyleSheet, View, Image, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { SafeAreaView, Text, StyleSheet, View, Image, TouchableOpacity, Alert } from 'react-native';
 import { TextInput, Button, Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // MaterialIcons for standard icons
 import { useRouter } from 'expo-router';
+import { createClient } from '@supabase/supabase-js';
+
+const SUPABASE_URL = 'https://ktezclohitsiegzhhhgo.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0ZXpjbG9oaXRzaWVnemhoaGdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwMjkxNDIsImV4cCI6MjA0ODYwNTE0Mn0.iAMC6qmEzBO-ybtLj9lQLxkrWMddippN6vsGYfmMAjQ';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    text: '#FFF', // Set the global text color to white
-    primary: '#FFF', // Primary button and accent color
-    background: '#1b1b41', // Background color
-    surface: '#1b1b41', // Card/Surface background color
-    placeholder: '#B0B0B0', // Placeholder color
+    text: '#FFF',
+    primary: '#FFF',
+    background: '#1b1b41',
+    surface: '#1b1b41',
+    placeholder: '#B0B0B0',
   },
   fonts: {
     regular: { fontFamily: 'Poppins_400Regular' },
@@ -24,10 +29,27 @@ const theme = {
 
 const Recover = () => {
   const router = useRouter();
+  const [email, setEmail] = useState('');
+
+  const handleRecover = async () => {
+    if (!email) {
+      Alert.alert('Error', 'Please enter your email address.');
+      return;
+    }
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: 'https://your-app-url/reset-password', // Your app's password reset page
+      });
+      if (error) throw error;
+
+      Alert.alert('Success', 'Recovery email sent! Check your inbox.');
+    } catch (err) {
+      Alert.alert('Error', err.message || 'Something went wrong.');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Icon name="chevron-left" size={35} color="#FDAD00" />
@@ -38,15 +60,11 @@ const Recover = () => {
         </View>
       </View>
 
-      {/* Centered Content */}
       <View style={styles.Content}>
         <Text style={styles.title}>Recover Password</Text>
-
-        {/* Subtitle */}
         <Text style={styles.subtitle}>
           Enter your registered email address, and we'll send you a link to reset your password.
         </Text>
-
         <View style={styles.inputContainer}>
           <TextInput
             label="Email Address"
@@ -56,17 +74,15 @@ const Recover = () => {
             placeholderTextColor="#FFF"
             underlineColor="#FDAD00"
             activeOutlineColor="#FDAD00"
-            textColor='#FFF'
-            left={<TextInput.Icon name="email" color="#FDAD00" size={20} />} // Adjusted icon size and color
+            textColor="#FFF"
+            value={email}
+            onChangeText={setEmail}
+            left={<TextInput.Icon name="email" color="#FDAD00" size={20} />}
           />
         </View>
-
-        {/* Recover Button */}
-        <Button mode="contained" onPress={() => console.log('Recovering...')} style={styles.recoverButton}>
+        <Button mode="contained" onPress={handleRecover} style={styles.recoverButton}>
           Send Recovery Email
         </Button>
-
-        {/* Sign In Option */}
         <View style={styles.signInContainer}>
           <Text style={styles.signInText}>
             Remembered your password?{' '}
