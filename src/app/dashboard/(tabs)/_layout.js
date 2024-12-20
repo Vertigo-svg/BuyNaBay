@@ -38,7 +38,7 @@ const DashboardLayout = () => {
             <View style={[styles.tabIconContainer, focused && styles.tabIconFocused]}>
               <Icon
                 name="shopping-bag"
-                size={20}
+                size={19  }
                 color={focused ? '#FDAD00' : '#000'}
               />
             </View>
@@ -66,7 +66,7 @@ const DashboardLayout = () => {
             <View style={[styles.tabIconContainer, focused && styles.tabIconFocused]}>
               <Icon
                 name="comments"
-                size={25}
+                size={22}
                 color={focused ? '#FDAD00' : '#000'}
               />
             </View>
@@ -80,7 +80,7 @@ const DashboardLayout = () => {
             <View style={[styles.tabIconContainer, focused && styles.tabIconFocused]}>
               <Icon
                 name="user"
-                size={20}
+                size={22}
                 color={focused ? '#FDAD00' : '#000'}
               />
             </View>
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     display: 'none', // Hide the tab labels
   },
   tabBarStyle: {
-    height: 80, // Adjust height for comfort
+    height: 75, // Adjust height for comfort
     backgroundColor: '#F2C14E', // Set the background color of the tab to white (editable)
     borderTopWidth: 0, // Add border outline
     borderColor: '#000', // Border color matching the theme
