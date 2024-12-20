@@ -60,6 +60,10 @@ const ProfileScreen = () => {
     }
   };
 
+  const handleCancelPress = () => {
+    setEditable(false); // Close the modal without saving changes
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
@@ -69,9 +73,23 @@ const ProfileScreen = () => {
         </View>
         <Text style={styles.profileText}>Name: {name}</Text>
         <Text style={styles.profileText}>School ID: {schoolID}</Text>
-        <TouchableOpacity style={styles.editButton} onPress={handleEditPress}>
+        <TouchableOpacity style={editable ? styles.editButtonActive : styles.editButton} onPress={handleEditPress}>
           <Text style={styles.editButtonText}>Edit Profile</Text>
         </TouchableOpacity>
+
+        {/* Horizontal line */}
+        <View style={styles.line}></View>
+
+        <View style={styles.statsContainer}>
+          <View style={styles.stat}>
+            <Text style={styles.statValue}>0</Text>
+            <Text style={styles.statLabel}>Products</Text>
+          </View>
+          <View style={styles.stat}>
+            <Text style={styles.statValue}>0</Text>
+            <Text style={styles.statLabel}>Items Sold</Text>
+          </View>
+        </View>
 
         {/* Edit Profile Modal */}
         <Modal visible={editable} animationType="slide" transparent={true}>
@@ -79,10 +97,14 @@ const ProfileScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="Your name"
+              placeholderTextColor="#AAA" // Placeholder text color
               value={name}
               onChangeText={setName}
             />
-            <Button title="Save" onPress={handleSavePress} />
+            <View style={styles.buttonContainer}>
+              <Button title="Save" onPress={handleSavePress} color="#1B1B41" />
+              <Button title="Cancel" onPress={handleCancelPress} color="#F2C14E" />
+            </View>
           </View>
         </Modal>
       </ScrollView>
@@ -124,7 +146,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingVertical: 10,
     paddingHorizontal: 30,
-    backgroundColor: '#007BFF',
+    backgroundColor: '#1B1B41', // Dark blue
+    borderRadius: 5,
+  },
+  editButtonActive: {
+    marginTop: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    backgroundColor: '#F2C14E', // Gold
     borderRadius: 5,
   },
   editButtonText: {
@@ -138,13 +167,41 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   input: {
-    width: 200,
-    height: 40,
+    width: 230,
+    height: 70,
     borderColor: '#FFF',
     borderWidth: 1,
     paddingHorizontal: 10,
     marginBottom: 10,
     color: '#FFF',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  line: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#DDD',
+    marginVertical: 20,
+    width: '100%',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    marginTop: 20,
+  },
+  stat: {
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  statLabel: {
+    fontSize: 14,
+    color: '#666',
   },
 });
 
