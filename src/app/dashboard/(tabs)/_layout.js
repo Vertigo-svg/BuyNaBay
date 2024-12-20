@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Import FontAwesome icons
-import { Ionicons } from '@expo/vector-icons';
+import { View } from 'react-native'; // Import View to wrap icons
 
 const DashboardLayout = () => {
   return (
@@ -13,41 +13,134 @@ const DashboardLayout = () => {
         tabBarActiveBackgroundColor: '#F2C14E', // Active background color for tab (BuyNaBay theme color)
         tabBarInactiveBackgroundColor: '#F2C14E', // Inactive background color for tab (BuyNaBay theme color)
         tabBarLabelStyle: {
-          fontSize: 12, // Adjusted font size for better readability
+          display: 'none', // Hide the tab labels
         },
         tabBarStyle: {
           height: 60, // Adjust height for comfort
-          backgroundColor: '#F2C14E', // Set the tab container color to BuyNaBay theme color
-          borderTopWidth: 2, // Add border outline
-          borderColor: '#F2C14E', // Border color matching the theme
+          backgroundColor: '#FFFFFF', // Set the background color of the tab to white (editable)
+          borderTopWidth: 1, // Add border outline
+          borderColor: '#000', // Border color matching the theme
         },
-        tabBarShowLabel: true,
+        tabBarShowLabel: false, // Ensure the labels are hidden
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
           tabBarIcon: ({ focused }) => (
-            <Icon name="home" size={20} color={focused ? '#FFFFFF' : '#000'} /> // Change icon color to white when active
+            <View
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: focused ? '#1B1B41' : '#F2C14E',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 20,
+              }}
+            >
+              <Icon
+                name="home"
+                size={20}
+                color={focused ? '#FDAD00' : '#000'}
+              />
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="cart"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: focused ? '#1B1B41' : '#F2C14E',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 20,
+              }}
+            >
+              <Icon
+                name="shopping-bag"
+                size={16}
+                color={focused ? '#FDAD00' : '#000'}
+              />
+            </View>
           ),
         }}
       />
       <Tabs.Screen
         name="add"
         options={{
-          title: 'Add',
           tabBarIcon: ({ focused }) => (
-            <Icon name="plus" size={30} color={focused ? '#FFFFFF' : '#000'} /> // Change icon color to white when active
+            <View
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: focused ? '#1B1B41' : '#F2C14E',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 20,
+              }}
+            >
+              <Icon
+                name="plus"
+                size={35}
+                color={focused ? '#FDAD00' : '#000'}
+              />
+            </View>
           ),
         }}
       />
       <Tabs.Screen
         name="inbox"
         options={{
-          title: 'Inbox',
           tabBarIcon: ({ focused }) => (
-            <Icon name={focused ? 'envelope' : 'envelope-o'} size={20} color={focused ? '#FFFFFF' : '#000'} /> // Change icon color to white when active
+            <View
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: focused ? '#1B1B41' : '#F2C14E',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 20,
+              }}
+            >
+              <Icon
+                name="comments"
+                size={20}
+                color={focused ? '#FDAD00' : '#000'}
+              />
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: focused ? '#1B1B41' : '#F2C14E',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: 20,
+              }}
+            >
+              <Icon
+                name="user"
+                size={20}
+                color={focused ? '#FDAD00' : '#000'}
+              />
+            </View>
           ),
         }}
       />

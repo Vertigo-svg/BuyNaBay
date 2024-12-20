@@ -1,9 +1,20 @@
 import React from 'react';
-import { SafeAreaView, View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { 
+  SafeAreaView, 
+  View, 
+  Text, 
+  StyleSheet, 
+  Image, 
+  TouchableOpacity, 
+  Dimensions, 
+  Platform 
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import AppLoading from 'expo-app-loading';
+
+const { width, height } = Dimensions.get('window');
 
 const WelcomeScreen = () => {
   const router = useRouter();
@@ -49,16 +60,19 @@ const WelcomeScreen = () => {
             money, and connect with fellow students in a secure, easy-to-use platform. Buy smart, sell fast –
             all within your campus community.
           </Text>
-        </View>
-
-        {/* Navigation Arrows */}
+            {/* Navigation Arrows */}
         <TouchableOpacity style={styles.arrowButton} onPress={navigateToLogin}>
           <View style={styles.arrowRow}>
+            <Text style={[styles.arrow, { opacity: 0.1 }]}> &gt; </Text>
             <Text style={[styles.arrow, { opacity: 0.3 }]}> &gt; </Text>
             <Text style={[styles.arrow, { opacity: 0.5 }]}> &gt; </Text>
             <Text style={[styles.arrow, { opacity: 0.7 }]}> &gt; </Text>
           </View>
         </TouchableOpacity>
+        </View>
+        <View style={styles.arrowRow}>
+        </View>
+      
       </SafeAreaView>
     </LinearGradient>
   );
@@ -71,60 +85,57 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 30,
+    alignItems: 'flex-start', 
+    paddingBottom: 20,
     paddingHorizontal: 20,
   },
   header: {
-    flexDirection: 'row', // Row layout for logo and text
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 5,
+    marginTop: 30,
     marginBottom: 30,
+    alignSelf: 'center', // Center-align header
   },
   logo: {
-    width: 35, // Adjusted size for better alignment
-    height: 35,
+    width: 40,
+    height: 40,
     resizeMode: 'contain',
-    marginRight: 2, // Space between logo and text
+    marginRight: 10,
   },
   logoText: {
-    fontSize: 20,
+    fontSize: 22,
     color: '#FFF',
+    fontFamily: 'Poppins_600SemiBold',
   },
   content: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 10,
+    margin: 20,
+    paddingHorizontal: 20,
   },
   title: {
-    fontSize: 35,
+    fontSize: 37,
     color: '#ffffff',
-    textAlign: 'center',
+    textAlign: 'left', 
     marginBottom: 20,
   },
   description: {
-    fontSize: 16,
+    fontSize: 17,
     color: '#d1d1d1',
-    textAlign: 'left', // Left-aligned text
-    lineHeight: 24,
-    paddingHorizontal: 10,
+    textAlign: 'justify', 
+    marginBottom: 30,
   },
   arrowButton: {
-    marginBottom: 50,
-    marginTop: 5,
-    alignItems: 'center',
-    marginRight: 200,
+   
   },
   arrowRow: {
-    flexDirection: 'row', // Row layout for arrows
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
   },
   arrow: {
-    fontSize: 32, // Size of each arrow
+    fontSize: 40,
     color: '#FFF',
-    marginHorizontal: -3, // Reduced space between arrows
+    marginHorizontal: -9,
   },
 });
 

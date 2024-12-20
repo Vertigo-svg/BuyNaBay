@@ -76,6 +76,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     color: '#fff',
+    marginTop: -30,
     marginBottom: 10,
     fontFamily: 'Poppins_700Bold', // Apply the bold Poppins font to the title
   },
