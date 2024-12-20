@@ -38,7 +38,7 @@ const Recover = () => {
     }
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://your-app-url/reset-password', // Your app's password reset page
+        redirectTo: 'https://your-app-url/reset-password', 
       });
       if (error) throw error;
 
