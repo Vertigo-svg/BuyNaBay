@@ -57,7 +57,6 @@ const LogInPage = () => {
           alert('Invalid email or password.');
         }
       } catch (error) {
-        console.error('Unexpected error:', error);
         alert('An unexpected error occurred. Please try again.');
       }
     } else {
