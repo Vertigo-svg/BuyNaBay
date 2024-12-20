@@ -46,7 +46,6 @@ const LogInPage = () => {
           .single();
   
         if (error) {
-          console.error('User fetch error:', error.message);
           alert('Login failed. Please check your credentials.');
           return;
         }
