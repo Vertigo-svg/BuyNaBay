@@ -1,19 +1,24 @@
-import React from 'react';
-import { SafeAreaView, Text, StyleSheet, View, Image, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { SafeAreaView, Text, StyleSheet, View, Image, TouchableOpacity, Alert } from 'react-native';
 import { TextInput, Button, Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // MaterialIcons for standard icons
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
-import FontAwesome from 'react-native-vector-icons/FontAwesome5';
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase
+const SUPABASE_URL = 'https://ktezclohitsiegzhhhgo.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0ZXpjbG9oaXRzaWVnemhoaGdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwMjkxNDIsImV4cCI6MjA0ODYwNTE0Mn0.iAMC6qmEzBO-ybtLj9lQLxkrWMddippN6vsGYfmMAjQ';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    text: '#FFF', // Set the global text color to white
-    primary: '#FFF', // Primary button and accent color
-    background: '#1b1b41', // Background color
-    surface: '#1b1b41', // Card/Surface background color
-    placeholder: '#B0B0B0', // Placeholder color
+    text: '#FFF',
+    primary: '#FFF',
+    background: '#1b1b41',
+    surface: '#1b1b41',
+    placeholder: '#B0B0B0',
   },
   fonts: {
     regular: { fontFamily: 'Poppins_400Regular' },
@@ -23,45 +28,101 @@ const theme = {
   },
 };
 
-
 const Register = () => {
   const router = useRouter();
 
+  // State variables for user inputs
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [schoolId, setSchoolId] = useState('');
+
+  // Validate inputs
+  const validateInputs = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !password || !phoneNumber || !schoolId) {
+      Alert.alert('Validation Error', 'All fields are required.');
+      return false;
+    }
+    if (!emailRegex.test(email.trim())) {
+      Alert.alert('Validation Error', 'Please enter a valid email address.');
+      return false;
+    }
+    if (password.length < 6) {
+      Alert.alert('Validation Error', 'Password must be at least 6 characters.');
+      return false;
+    }
+    return true;
+  };
+
+  // Handle user registration
+  const handleSignUp = async () => {
+    const trimmedEmail = email.trim();
+    if (!validateInputs()) return;
+
+    try {
+      // Create user in Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: trimmedEmail,
+        password,
+      });
+
+      if (authError) {
+        throw authError;
+      }
+
+      // Insert additional data into the users table
+      const { error: insertError } = await supabase
+        .from('users')
+        .insert([
+          {
+            email: trimmedEmail,
+            password, // Store hashed password if applicable
+            phone_number: phoneNumber.trim(),
+            school_id: schoolId.trim(),
+          },
+        ]);
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      Alert.alert('Success', 'Account created successfully!');
+      router.push('/logIn'); // Navigate to login page
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        {/* Back Button */}
+     {/* Header */}
+     <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Icon name="chevron-left" size={30} color="#FDAD00" />
+          <Icon name="chevron-left" size={35} color="#FDAD00" />
         </TouchableOpacity>
-
-        {/* Logo and Title */}
-        <View style={styles.headerContent}>
-          <Image source={require('../assets/BuyNaBay.png')} style={styles.headerLogo} resizeMode="contain" />
-          <Text style={styles.headerTitle}>BuyNaBay</Text>
+        <View style={styles.logoContainer}>
+          <Image source={require('../assets/BuyNaBay.png')} style={styles.logo} />
+          <Text style={styles.logoText}>BuyNaBay</Text>
         </View>
       </View>
 
+      <View style={styles.Content}>
       <Text style={styles.title}>Sign Up</Text>
-      <Text style={styles.subtitle}>Create an account so you can manage your personal finances</Text>
+      <Text style={styles.subtitle}>Create an account to get started</Text>
 
       {/* Input Fields */}
       <View style={styles.inputContainer}>
         <TextInput
-          label="Username"
+          label="Email"
           mode="flat"
           style={styles.input}
-          placeholder="Enter Username"
+          placeholder="Enter Email"
           placeholderTextColor="#FFF"
-          labelStyle={styles.labelText}
+          value={email}
           textColor='#FFF'
-          theme={{
-            colors: {
-              placeholder: '#FFF', // Set placeholder color to white
-              primary: '#FDAD00',
-            },
-          }}
+          onChangeText={setEmail}
+          theme={{ colors: { placeholder: '#FFF', primary: '#FDAD00' } }}
         />
       </View>
 
@@ -72,14 +133,10 @@ const Register = () => {
           style={styles.input}
           placeholder="Enter Password"
           placeholderTextColor="#FFF"
-          labelStyle={styles.labelText}
+          value={password}
           textColor='#FFF'
-          theme={{
-            colors: {
-              placeholder: '#FFF', // Set placeholder color to white
-              primary: '#FDAD00',
-            },
-          }}
+          onChangeText={setPassword}
+          theme={{ colors: { placeholder: '#FFF', primary: '#FDAD00' } }}
         />
       </View>
 
@@ -89,14 +146,10 @@ const Register = () => {
           style={styles.input}
           placeholder="Enter Phone Number"
           placeholderTextColor="#FFF"
-          labelStyle={styles.labelText}
+          value={phoneNumber}
+          onChangeText={setPhoneNumber}
           textColor='#FFF'
-          theme={{
-            colors: {
-              placeholder: '#FFF', // Set placeholder color to white
-              primary: '#FDAD00',
-            },
-          }}
+          theme={{ colors: { placeholder: '#FFF', primary: '#FDAD00' } }}
         />
       </View>
 
@@ -106,19 +159,15 @@ const Register = () => {
           style={styles.input}
           placeholder="Enter School ID Number"
           placeholderTextColor="#FFF"
-          labelStyle={styles.labelText}
+          value={schoolId}
+          onChangeText={setSchoolId}
           textColor='#FFF'
-          theme={{
-            colors: {
-              placeholder: '#FFF', // Set placeholder color to white
-              primary: '#FDAD00',
-            },
-          }}
+          theme={{ colors: { placeholder: '#FFF', primary: '#FDAD00' } }}
         />
       </View>
 
       {/* Sign Up Button */}
-      <Button mode="contained" onPress={() => console.log('Registering...')} style={styles.signUpButton}>
+      <Button mode="contained" onPress={handleSignUp} style={styles.signUpButton}>
         Create an Account
       </Button>
 
@@ -131,24 +180,6 @@ const Register = () => {
           </Text>
         </Text>
       </View>
-
-      {/* Social Media Sign Up */}
-      <View style={styles.socialSignUp}>
-        <Text style={styles.socialText}>Or continue with social account</Text>
-        <View style={styles.socialIcons}>
-          {/* Apple Icon */}
-          <TouchableOpacity style={styles.socialIcon}>
-            <Icon name="apple" size={24} color="#FFF" />
-          </TouchableOpacity>
-          {/* Google (Gmail) Icon */}
-          <TouchableOpacity style={styles.socialIcon}>
-            <FontAwesome name="google" size={24} color="#FFF" />
-          </TouchableOpacity>
-          {/* Facebook Icon */}
-          <TouchableOpacity style={styles.socialIcon}>
-            <Icon name="facebook" size={24} color="#FFF" />
-          </TouchableOpacity>
-        </View>
       </View>
     </SafeAreaView>
   );
@@ -157,104 +188,88 @@ const Register = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#1b1b41',
-    fontFamily: 'Poppins', // Set global font to Poppins
+    paddingBottom: 20,
+    paddingHorizontal: 20,
   },
   header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 30,
     marginBottom: 20,
+    margin: 20,
   },
-  backButton: {
-    marginRight: 10,
+  backArrow: {
+    alignSelf: 'flex-start',
   },
-  headerContent: {
+  logoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-end', // Align the logo and title to the right
-    flex: 1,
   },
-  headerLogo: {
-    width: 40,
+  logo: {
+    width: 30,
     height: 40,
+    resizeMode: 'contain',
+    marginRight: 10,
   },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  logoText: {
+    fontSize: 22,
     color: '#FFF',
-    marginLeft: 10, // Space between the logo and text
-    fontFamily: 'Poppins', // Ensure Poppins font for title
+    fontFamily: 'Poppins_700Bold',
+  },
+  Content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 20,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontSize: 45,
+    fontWeight: 900,
     color: '#FFF',
     textAlign: 'center',
-    fontFamily: 'Poppins', // Ensure Poppins font for title
+    fontFamily: 'Poppins',
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 14,
-    color: '#B0B0B0', // Lighter gray color for subtitle to appear faded
+    color: '#B0B0B0',
     textAlign: 'center',
     marginBottom: 30,
-    fontFamily: 'Poppins', // Ensure Poppins font for subtitle
+    fontFamily: 'Poppins',
   },
-  inputContainer: {
-    width: '100%',
-    marginBottom: 15,
+  // Input styles
+  inputContainer: { 
+    width: '100%', 
+    marginBottom: 15 
   },
-  input: {
-    backgroundColor: '#1b1b41',
-    color: '#FFF',
-    fontFamily: 'Poppins_400Regular', // Ensure Poppins font for inputs
+  input: { 
+    backgroundColor: '#1b1b41', 
+    color: '#FFF' 
   },
-  labelText: {
-    fontFamily: 'Poppins', // Apply Poppins to label text
-    color: '#FFF', // White color for the label
+
+  // Button styles
+  signUpButton: { 
+    width: '100%', 
+    paddingVertical: 12, 
+    backgroundColor: '#FDAD00', 
+    borderRadius: 25, 
+    marginTop: 20 
   },
-  signUpButton: {
-    width: '100%',
-    paddingVertical: 12,
-    backgroundColor: '#FDAD00',
-    borderRadius: 25,
-    marginTop: 20,
+
+  // Sign-in styles
+  signInContainer: { 
+    marginTop: 15, 
+    alignItems: 'center' 
   },
-  signInContainer: {
-    marginTop: 15,
-    alignItems: 'center',
+  signInText: { 
+    color: '#FFF', 
+    fontSize: 14 
   },
-  signInText: {
-    color: '#FFF',
-    fontSize: 14,
-    fontFamily: 'Poppins', // Ensure Poppins font for sign-in text
-  },
-  signInLink: {
-    fontWeight: 'bold',
-    color: '#FDAD00',
-  },
-  socialSignUp: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  socialText: {
-    color: '#B0B0B0', // Lighter gray color for socialText to appear faded
-    fontSize: 14,
-    marginBottom: 10,
-    fontFamily: 'Poppins', // Ensure Poppins font for social text
-  },
-  socialIcons: {
-    flexDirection: 'row',
-    gap: 15,
-  },
-  socialIcon: {
-    padding: 10,
-    borderRadius: 50,
-    width: 50,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
+  signInLink: { 
+    fontWeight: 'bold', 
+    color: '#FDAD00' 
   },
 });
 

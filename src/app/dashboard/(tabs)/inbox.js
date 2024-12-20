@@ -1,8 +1,7 @@
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Importing MaterialIcons
-
-const Inbox = () => {
+export default function Inbox() {
   const notifications = [
     { id: '1', name: 'Allyn Kyle Cambaya', message: 'I really want us to work together on the BuyNaBay project. Do you have time?', image: require('../../../../assets/seller1.jpeg') },
     { id: '2', name: 'Joevel Berana', message: 'I want to join the BuyNaBay project. How do we start?', image: require('../../../../assets/seller2.png') },
@@ -18,7 +17,7 @@ const Inbox = () => {
       <View style={styles.header}>
         <Text style={styles.title}>Messages</Text>
         <TouchableOpacity style={styles.iconContainer}>
-          <Icon name="search" size={30} color="#3e7139" />
+          <Icon name="search" size={30} color="#000" />
         </TouchableOpacity>
       </View>
 
@@ -37,12 +36,12 @@ const Inbox = () => {
       />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0D1B2A', // Dark background to match theme
+    backgroundColor: '#FFECB3', // Creamy background for the overall screen
     padding: 15,
   },
   header: {
@@ -58,12 +57,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginLeft: 45,
-    color: '#FFFFFF', // White title text for contrast
+    color: '#000', // Black title text for contrast with the light background
     textAlign: 'center',
     flex: 1, // Make title take up available space between icons
   },
   notificationCard: {
-    backgroundColor: '#1F2A3D', // Dark background for notification cards
+    backgroundColor: '#FFFF', // White card background for messages
     borderRadius: 10,
     padding: 15,
     marginBottom: 20,
@@ -72,7 +71,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 5,
     borderLeftWidth: 5,
-    borderLeftColor: '#3e7139', // Greenish left border for emphasis
+    borderLeftColor: '#000', // Black left border for emphasis
   },
   headerCard: {
     flexDirection: 'row',
@@ -88,13 +87,11 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#FF6F00', // Accent color for names
+    color: '#FF6F00', // Vibrant orange accent for names
   },
   message: {
     fontSize: 16,
-    color: '#A0A0A0', // Lighter text for message content
+    color: '#000', // Black text for message content
     marginTop: 5,
   },
 });
-
-export default Inbox;

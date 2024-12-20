@@ -2,8 +2,14 @@ import React, { useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { TextInput, Button, Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useRouter } from 'expo-router';  
+import { useRouter } from 'expo-router';
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold } from '@expo-google-fonts/poppins';
+import { createClient } from '@supabase/supabase-js';
+
+// Set up Supabase client
+const SUPABASE_URL = 'https://ktezclohitsiegzhhhgo.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0ZXpjbG9oaXRzaWVnemhoaGdvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczMzAyOTE0MiwiZXhwIjoyMDQ4NjA1MTQyfQ.JuqsO0J67NiPblAc6oYlJwgHRbMfS3vorbmnNzb4jhI';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const theme = {
   ...DefaultTheme,
@@ -16,6 +22,7 @@ const theme = {
     placeholder: '#B0B0B0',
   },
   fonts: {
+    bold: { fontFamily: 'Poppins_700Bold' },
     regular: { fontFamily: 'Poppins_400Regular' },
     medium: { fontFamily: 'Poppins_500Medium' },
     light: { fontFamily: 'Poppins_300Light' },
@@ -29,16 +36,37 @@ const LogInPage = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     if (username && password) {
-      router.push({
-        pathname: 'dashboard',
-        params: { username },
-      });
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', username)
+          .single();
+  
+        if (error) {
+          alert('Login failed. Please check your credentials.');
+          return;
+        }
+  
+        if (data && data.password === password) {
+          console.log('Login successful:', data);
+          router.push({ pathname: 'dashboard', params: { username } });
+        } else {
+          alert('Invalid email or password.');
+        }
+      } catch (error) {
+        console.error('Unexpected error:', error);
+        alert('An unexpected error occurred. Please try again.');
+      }
     } else {
-      alert('Please enter correct credentials');
+      alert('Please enter both email and password.');
     }
   };
+  
+  
+  
 
   const handleBackArrowPress = () => {
     router.push('/intro');
@@ -99,9 +127,6 @@ const LogInPage = () => {
               },
             }}
           />
-          <View style={styles.verifyIcon}>
-            <Icon name="check-circle" size={20} color="blue" />
-          </View>
         </View>
 
         {/* Password Input */}
@@ -162,21 +187,25 @@ const LogInPage = () => {
   );
 };
 
-// Styles for LogInPage
-const styles = StyleSheet.create({
+const styles = StyleSheet.create({ 
   container: {
     flex: 1,
     backgroundColor: '#1b1b41',
-    padding: 20,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 30,
     marginBottom: 20,
+    margin: 20,
   },
   backArrow: {
     alignSelf: 'flex-start',
+    marginTop: 10,
+    marginLeft: 10,
   },
   logoContainer: {
     flexDirection: 'row',
@@ -184,23 +213,25 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 30,
-    height: 30,
+    height: 40,
     resizeMode: 'contain',
     marginRight: 10,
   },
   logoText: {
-    fontSize: 20,
+    fontSize: 22,
     color: '#FFF',
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'Poppins_700Bold',
   },
   content: {
     flex: 1,
     justifyContent: 'center',
+    margin: 20,
   },
   signInText: {
-    fontSize: 30,
+    fontSize: 45,
     color: '#FFF',
-    fontFamily: 'Poppins_600SemiBold',
+    fontWeight: 900,
+    fontFamily: 'Poppins',
     textAlign: 'center',
     marginBottom: 10,
   },
@@ -242,7 +273,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     width: '100%',
-    padding: 15,
+    padding: 30,
     borderRadius: 10,
   },
   forgotPasswordText: {

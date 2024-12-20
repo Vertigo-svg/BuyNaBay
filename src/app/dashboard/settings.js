@@ -1,142 +1,128 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Switch } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, StyleSheet, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useNavigation } from '@react-navigation/native'; // Import the navigation hook
-import { Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native'; // Import the useNavigation hook
 
 export default function Settings() {
-  const navigation = useNavigation(); // Initialize the navigation hook
+  const navigation = useNavigation(); // Initialize the navigation object
+
+  const openDrawer = () => {
+    navigation.openDrawer(); // Open the drawer programmatically when clicked
+  };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Header with back button */}
+    <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Icon name="arrow-left" size={20} color="#F2C14E" />
+        <TouchableOpacity style={styles.drawerIcon} onPress={openDrawer}>
+          <Icon name="bars" size={24} color="#1B1B41" />
         </TouchableOpacity>
+        <Text style={styles.logo}>Settings</Text>
       </View>
 
-      {/* Profile Section */}
-      <View style={styles.profileSection}>
-      <Image
-            style={styles.profileImage}
-            source={require('../../../assets/Profile.jpg')}
-          />
-        <Text style={styles.profileName}>Gabriel Felicitas</Text>
-        <Text style={styles.profileEmail}>vertigo@gmail.com</Text>
-        <TouchableOpacity style={styles.editProfileButton}>
-          <Text style={styles.editProfileText}>Edit Profile</Text>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Text style={styles.sectionLabel}>Tools and Resources</Text>
+        <TouchableOpacity style={styles.settingOption}>
+          <Icon name="cogs" size={18} style={styles.icon} />
+          <Text style={styles.settingText}>Account Settings</Text>
         </TouchableOpacity>
-      </View>
+        <TouchableOpacity style={styles.settingOption}>
+          <Icon name="key" size={18} style={styles.icon} />
+          <Text style={styles.settingText}>Privacy Checkup</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.settingOption}>
+          <Icon name="home" size={18} style={styles.icon} />
+          <Text style={styles.settingText}>Supervision</Text>
+        </TouchableOpacity>
 
-      {/* Content Section */}
-      <Text style={styles.sectionLabel}>Content</Text>
-      <TouchableOpacity style={styles.settingOption}>
-        <Text style={styles.settingText}>Favorites</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.settingOption}>
-        <Text style={styles.settingText}>Downloads</Text>
-      </TouchableOpacity>
-
-      {/* Preferences Section */}
-      <Text style={styles.sectionLabel}>Preferences</Text>
-      <TouchableOpacity style={styles.settingOption}>
-        <Text style={styles.settingText}>Language</Text>
-        <Text style={styles.settingValue}>English</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.settingOption}>
-        <Text style={styles.settingText}>Notifications</Text>
-        <Text style={styles.settingValue}>Enabled</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.settingOption}>
-        <Text style={styles.settingText}>Theme</Text>
-        <Text style={styles.settingValue}>Light</Text>
-      </TouchableOpacity>
-      <View style={styles.settingOption}>
-        <Text style={styles.settingText}>Background Play</Text>
-        <Switch value={true} />
-      </View>
-      <View style={styles.settingOption}>
-        <Text style={styles.settingText}>Download via WiFi Only</Text>
-        <Switch value={false} />
-      </View>
-      <View style={styles.settingOption}>
-        <Text style={styles.settingText}>Autoplay</Text>
-        <Switch value={true} />
-      </View>
-    </ScrollView>
+        <Text style={styles.sectionLabel}>Preferences</Text>
+        <TouchableOpacity style={styles.settingOption}>
+          <Icon name="sun-o" size={18} style={styles.icon} />
+          <Text style={styles.settingText}>Darkmode</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.settingOption}>
+          <Icon name="bell" size={18} style={styles.icon} />
+          <Text style={styles.settingText}>Notification</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.settingOption}>
+          <Icon name="language" size={18} style={styles.icon} />
+          <Text style={styles.settingText}>Language</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.settingOption}>
+          <Icon name="universal-access" size={18} style={styles.icon} />
+          <Text style={styles.settingText}>Accessibility</Text>
+        </TouchableOpacity>
+        
+        <Text style={styles.sectionLabel}>Legal Policies</Text>
+        <TouchableOpacity style={styles.settingOption}>
+          <Icon name="file" size={18} style={styles.icon} />
+          <Text style={styles.settingText}>Terms of Service</Text>
+        </TouchableOpacity>
+        <View style={styles.footerSpacing} />
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    backgroundColor: '#0D1B2A', // Dark background to match BuyNaBay theme
+    flex: 1,
+    backgroundColor: '#1B1B41', // Dark blue background for the settings screen
   },
   header: {
+    position: 'absolute', // Fix header on top
+    top: 0,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
     alignItems: 'center',
-    marginBottom: 20,
+    backgroundColor: '#fff',
+    zIndex: 10,
+    borderBottomWidth: 0,
+    borderBottomColor: 'black',
   },
-  backButton: {
-    marginRight: 10,
+  drawerIcon: { 
+    marginRight: 16 
   },
-  headerTitle: {
+  logo: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FF6F00', // Accent color for the title
+    marginRight: 160,
+    color: '#1B1B41',
     flex: 1,
-    textAlign: 'center',
   },
-  profileSection: {
-    alignItems: 'center',
-    marginBottom: 20,
+  notificationIcon: {
+    marginLeft: 16,
   },
-  profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-  },
-  profileName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FF6F00', // Accent color for the profile name
-  },
-  profileEmail: {
-    fontSize: 14,
-    color: '#A0A0A0', // Lighter text for the email
-    marginBottom: 10,
-  },
-  editProfileButton: {
-    backgroundColor: '#3e7139', // Greenish button color from BuyNaBay theme
+  scrollContainer: {
+    flexGrow: 1,
+    paddingTop: 80, // Give space for the fixed header
     paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 5,
-  },
-  editProfileText: {
-    color: '#fff',
-    fontWeight: 'bold',
   },
   sectionLabel: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#3e7139', // Greenish accent color for section labels
     marginVertical: 10,
+    color: '#FDAD00', // Vibrant yellow color for section labels
   },
   settingOption: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#3e7139', // Greenish bottom border for separation
+    borderRadius: 5,
+    marginVertical: 5,
   },
   settingText: {
     fontSize: 16,
-    color: '#FFF', // White text for better contrast
+    marginLeft: 10,
+    color: '#fff', // White text for settings options
   },
-  settingValue: {
-    fontSize: 16,
-    color: '#A0A0A0', // Lighter color for setting values
+  icon: {
+    marginRight: 10,
+    color: '#FDAD00', // Vibrant yellow color for icons
+  },
+  footerSpacing: {
+    height: 50,
   },
 });
