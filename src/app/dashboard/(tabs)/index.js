@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, RefreshControl, TouchableOpacity, TextInput } from 'react-native';
 import { createClient } from '@supabase/supabase-js';
-import { FontAwesome, Ionicons } from '@expo/vector-icons'; // Ensure you have these icons
-import { useNavigation } from '@react-navigation/native'; // Import navigation hook
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 // Initialize Supabase client
-const supabaseUrl = 'https://ktezclohitsiegzhhhgo.supabase.co'; // Replace with your Supabase URL
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0ZXpjbG9oaXRzaWVnemhoaGdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwMjkxNDIsImV4cCI6MjA0ODYwNTE0Mn0.iAMC6qmEzBO-ybtLj9lQLxkrWMddippN6vsGYfmMAjQ'; // Replace with your Supabase anon key
+const supabaseUrl = 'https://ktezclohitsiegzhhhgo.supabase.co'; 
+const supabaseKey =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0ZXpjbG9oaXRzaWVnemhoaGdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwMjkxNDIsImV4cCI6MjA0ODYwNTE0Mn0.iAMC6qmEzBO-ybtLj9lQLxkrWMddippN6vsGYfmMAjQ'; // Replace with your Supabase anon key
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function ItemList() {
-  const navigation = useNavigation(); // Use the navigation hook
+  const navigation = useNavigation();
   const [items, setItems] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [searchVisible, setSearchVisible] = useState(false);
@@ -32,35 +33,93 @@ export default function ItemList() {
     }
   };
 
+  // Fetch liked items
+  const fetchLikedItems = async () => {
+    const { data: cartItems, error } = await supabase.from('cart').select('itemname'); // Use 'itemname' instead of 'item_id'
+    if (error) {
+      console.error('Error fetching liked items:', error);
+    } else {
+      const likedItemsMap = {};
+      cartItems.forEach((like) => {
+        likedItemsMap[like.itemname] = true; // Assuming 'itemname' is the identifier for a liked item
+      });
+      setLikedItems(likedItemsMap);
+    }
+  };
+  
+
   // Refresh function
   const onRefresh = async () => {
-    setRefreshing(true); // Show loading indicator
+    setRefreshing(true);
     await fetchItems(selectedCategory);
-    setRefreshing(false); // Hide loading indicator
+    await fetchLikedItems();
+    setRefreshing(false);
   };
 
   useEffect(() => {
-    fetchItems(selectedCategory); // Initial fetch for all items or filtered by category
+    fetchItems(selectedCategory);
+    fetchLikedItems();
   }, [selectedCategory]);
 
-  // Toggle like status
-  const toggleLike = (itemId) => {
-    setLikedItems((prev) => {
-      const isLiked = !prev[itemId];
-      return { ...prev, [itemId]: isLiked };
-    });
+  // Toggle like status and save to cart
+  const toggleLike = async (item) => {
+    const isLiked = likedItems[item.id];
+  
+    if (isLiked) {
+      // Remove from cart if already liked
+      const { error } = await supabase.from('cart').delete().eq('item_id', item.id);
+      if (error) {
+        console.error('Error removing from cart:', error.message);
+      } else {
+        setLikedItems((prev) => ({ ...prev, [item.id]: false }));
+        console.log('Item removed from cart');
+      }
+    } else {
+      // Check if the item already exists in the cart to avoid duplicates
+      const { data: existingItem, error: checkError } = await supabase
+        .from('cart')
+        .select('id') // Use 'id' to check for existing entries
+        .eq('itemname', item.itemname) // Assuming itemname is unique or a suitable key for matching
+        .single();
+  
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Error checking cart:', checkError.message);
+        return;
+      }
+  
+      if (existingItem) {
+        console.log('Item already exists in the cart.');
+      } else {
+        // Add item to cart if it doesn't already exist
+        const { error } = await supabase.from('cart').insert([
+          {
+            itemname: item.itemname,
+            description: item.description,
+            price: item.price,
+            category: item.category,
+            address: item.address,
+            image: item.image || 'https://example.com/placeholder.png',
+          },
+        ]);
+  
+        if (error) {
+          console.error('Error adding to cart:', error.message);
+        } else {
+          setLikedItems((prev) => ({ ...prev, [item.id]: true }));
+          console.log('Item added to cart successfully');
+        }
+      }
+    }
   };
+  
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        {/* Drawer Icon */}
         <TouchableOpacity onPress={() => navigation.toggleDrawer()} style={styles.iconButton}>
-          <FontAwesome name="bars" size={24} color="black" />
+          <FontAwesome name="bars" size={24} color="white" />
         </TouchableOpacity>
-
-        {/* Logo and Text */}
         <View style={styles.logoContainer}>
           <Image source={require('../../../assets/OfficialBuyNaBay.png')} style={styles.logoImage} />
           {searchVisible ? (
@@ -75,71 +134,62 @@ export default function ItemList() {
             <Text style={styles.logoText}>BuyNaBay</Text>
           )}
         </View>
-
         <View style={styles.headerIcons}>
-          {/* Search Icon */}
           <TouchableOpacity onPress={() => setSearchVisible(!searchVisible)} style={styles.iconButton}>
             <FontAwesome name="search" size={24} color="#FDAD00" />
           </TouchableOpacity>
-          {/* Notification Icon */}
           <TouchableOpacity onPress={() => console.log('Notification pressed')} style={styles.iconButton}>
-            <Ionicons name="notifications" size={24} color="black" />
+            <Ionicons name="notifications" size={24} color="white" />
           </TouchableOpacity>
         </View>
       </View>
 
       {/* Category Row */}
       <View style={styles.categoryRow}>
-        {[{ name: 'Books', image: require('../../../../products/10.png') },
+        {[
+          { name: 'Books', image: require('../../../../products/10.png') },
           { name: 'Shoes', image: require('../../../../products/11.png') },
           { name: 'Clothes', image: require('../../../../products/12.png') },
-          { name: 'Foods', image: require('../../../../products/13.png') }]
-          .map(category => (
-            <TouchableOpacity
-              key={category.name}
-              onPress={() => setSelectedCategory(category.name)} // Set selected category on press
-              style={styles.categoryButton}
-            >
-              <Image source={category.image} style={styles.categoryImage} />
-              <Text style={[styles.categoryText, selectedCategory === category.name && styles.activeCategoryText]}>
-                {category.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
+          { name: 'Foods', image: require('../../../../products/13.png') },
+        ].map((category) => (
+          <TouchableOpacity
+            key={category.name}
+            onPress={() => setSelectedCategory(category.name)}
+            style={styles.categoryButton}
+          >
+            <Image source={category.image} style={styles.categoryImage} />
+            <Text style={[styles.categoryText, selectedCategory === category.name && styles.activeCategoryText]}>
+              {category.name}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       <FlatList
         data={items}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.itemContainer}>
             <Text style={styles.itemName}>{item.itemname}</Text>
             <Text style={styles.itemDescription}>{item.description}</Text>
             <Text style={styles.itemPrice}>
-              {new Intl.NumberFormat('en-PH', {
-                style: 'currency',
-                currency: 'PHP',
-              }).format(item.price)}
+              {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(item.price)}
             </Text>
             <Text style={styles.itemCategory}>Category: {item.category}</Text>
             <Text style={styles.itemAddress}>Address: {item.address}</Text>
-            <Image
-              source={{ uri: item.image || 'https://example.com/placeholder.png' }}
-              style={styles.itemImage}
-            />
-            {/* Personal Post Icons */}
+            <Image source={{ uri: `file://${item.image}` }} style={styles.itemImage} />
             <View style={styles.iconsContainer}>
-              <TouchableOpacity onPress={() => toggleLike(item.id)} style={styles.icon}>
+              <TouchableOpacity onPress={() => toggleLike(item)} style={styles.icon}>
                 <FontAwesome
                   name={likedItems[item.id] ? 'heart' : 'heart-o'}
                   size={24}
                   color={likedItems[item.id] ? 'red' : 'black'}
                 />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => console.log('Message pressed')} style={styles.icon}>
+              <TouchableOpacity onPress={() => navigation.navigate('inbox')} style={styles.icon}>
                 <FontAwesome name="comments-o" size={24} color="black" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => console.log('Cart pressed')} style={styles.icon}>
+              <TouchableOpacity onPress={() => navigation.navigate('cart')} style={styles.icon}>
                 <Ionicons name="cart-outline" size={24} color="black" />
               </TouchableOpacity>
             </View>
@@ -168,114 +218,103 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     alignItems: 'center',
-    backgroundColor: '#fff',
-    zIndex: 10, // Ensure it stays above other content
-    borderBottomWidth: 0,
-    borderBottomColor: 'black',
+    backgroundColor: '#1B1B41', // Dark navy background
+  },
+  iconButton: {
+    padding: 8,
   },
   logoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
   },
   logoImage: {
-    width: 30, // Same size as the search icon
-    height: 30,
-    marginRight: 8, // Spacing between the logo and text
+    width: 40,
+    height: 40,
+    marginRight: 8,
   },
   logoText: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  iconButton: {
-    marginRight: 16,
+    color: '#FFAD1F', // Gold
   },
   searchBar: {
+    width: 200,
     height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    flex: 1,
-    marginRight: 10,
+    borderRadius: 20,
+    paddingLeft: 16,
+    backgroundColor: '#fff',
+    marginHorizontal: 8,
   },
-  headerIcons: { flexDirection: 'row', alignItems: 'center' },
+  headerIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  categoryRow: {
+    marginTop: 60,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 16,
+  },
+  categoryButton: {
+    alignItems: 'center',
+  },
+  categoryImage: {
+    width: 30,
+    height: 30,
+  },
+  categoryText: {
+    fontSize: 12,
+    marginTop: 4,
+    color: '#333', // Dark gray
+  },
+  activeCategoryText: {
+    color: '#FDAD00', // Yellow
+  },
   itemContainer: {
-    marginTop: 15,
-    marginBottom: 15, // Improved spacing below each item
-    padding: 15,
-    backgroundColor: '#FFF', // White background for item containers
-    borderRadius: 5,
-    borderWidth: 1, // Subtle border for item containers
-    borderColor: '#FF6F00', // Accent border color
-    shadowColor: '#000', // Add shadow for elevation
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+    marginBottom: 20,
+    padding: 16,
+    backgroundColor: '#FFF3E0', // Light peach background
+    borderRadius: 8,
+    elevation: 2,
   },
   itemName: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 8,
+    color: '#1B1B41', // Dark navy
   },
   itemDescription: {
     fontSize: 14,
-    color: '#555', // Lighter text for descriptions
-    marginBottom: 5,
+    color: '#333', // Dark gray
+    marginBottom: 4,
   },
   itemPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FF6F00', // Accent price color
+    color: '#FFAD1F', // Gold
+    marginBottom: 4,
   },
   itemCategory: {
     fontSize: 14,
-    color: '#666', // Slightly darker text for category
-    marginBottom: 5,
+    color: '#666', // Light gray
+    marginBottom: 4,
   },
   itemAddress: {
     fontSize: 14,
-    color: '#666', // Darker text for address
-    marginBottom: 5,
+    color: '#666', // Light gray
+    marginBottom: 8,
   },
   itemImage: {
     width: '100%',
-    height: 200,
-    borderRadius: 5,
-    marginBottom: 10,
+    height: 150,
     resizeMode: 'cover',
+    marginBottom: 8,
   },
   iconsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
   },
   icon: {
-    marginRight: 20, // Adjust spacing for icons
-  },
-  categoryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginVertical: 10,
-    marginBottom: 20,
-  },
-  categoryButton: {
-    marginTop: 45,
-    alignItems: 'center',
-    width: 70,
-  },
-  categoryImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginBottom: 5,
-  },
-  categoryText: {
-    fontSize: 12,
-  },
-  activeCategoryText: {
-    fontWeight: 'bold',
-    color: '#FF6F00', // Accent color for selected category
+    marginRight: 16,
   },
 });

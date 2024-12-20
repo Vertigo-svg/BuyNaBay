@@ -30,8 +30,8 @@ const DashboardLayout = () => {
           tabBarIcon: ({ focused }) => (
             <View
               style={{
-                width: 30,
-                height: 30,
+                width: 40,
+                height: 40,
                 borderRadius: 20,
                 backgroundColor: focused ? '#1B1B41' : '#F2C14E',
                 justifyContent: 'center',
@@ -54,8 +54,8 @@ const DashboardLayout = () => {
           tabBarIcon: ({ focused }) => (
             <View
               style={{
-                width: 30,
-                height: 30,
+                width: 40,
+                height: 40,
                 borderRadius: 20,
                 backgroundColor: focused ? '#1B1B41' : '#F2C14E',
                 justifyContent: 'center',
@@ -64,8 +64,8 @@ const DashboardLayout = () => {
               }}
             >
               <Icon
-                name="shopping-cart"
-                size={20}
+                name="shopping-bag"
+                size={16}
                 color={focused ? '#FDAD00' : '#000'}
               />
             </View>
@@ -78,8 +78,8 @@ const DashboardLayout = () => {
           tabBarIcon: ({ focused }) => (
             <View
               style={{
-                width: 30,
-                height: 30,
+                width: 40,
+                height: 40,
                 borderRadius: 20,
                 backgroundColor: focused ? '#1B1B41' : '#F2C14E',
                 justifyContent: 'center',
@@ -89,7 +89,7 @@ const DashboardLayout = () => {
             >
               <Icon
                 name="plus"
-                size={20}
+                size={35}
                 color={focused ? '#FDAD00' : '#000'}
               />
             </View>
@@ -102,8 +102,8 @@ const DashboardLayout = () => {
           tabBarIcon: ({ focused }) => (
             <View
               style={{
-                width: 30,
-                height: 30,
+                width: 40,
+                height: 40,
                 borderRadius: 20,
                 backgroundColor: focused ? '#1B1B41' : '#F2C14E',
                 justifyContent: 'center',
@@ -126,8 +126,8 @@ const DashboardLayout = () => {
           tabBarIcon: ({ focused }) => (
             <View
               style={{
-                width: 30,
-                height: 30,
+                width: 40,
+                height: 40,
                 borderRadius: 20,
                 backgroundColor: focused ? '#1B1B41' : '#F2C14E',
                 justifyContent: 'center',
