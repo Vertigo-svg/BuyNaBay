@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,19 +9,22 @@ import {
   TextInput,
   Modal,
   ScrollView,
+  Alert,
 } from 'react-native';
-import React, { useState } from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker'; // Import expo-image-picker
 
 export default function Inbox() {
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [message, setMessage] = useState('');
+  const [imageUri, setImageUri] = useState(null); // For storing the selected image
   const navigation = useNavigation();
 
   const notifications = [
-    { id: '1', name: 'Gabriel Felicitas', username: 'gabriel_felicitas', message: 'I really want us to work together on the BuyNaBay project. Do you have time?', image: require('../../../../assets/Profile.jpg') },
+    { id: '1', name: 'Gab Felicitas', username: 'gabriel_felicitas', message: 'I really want us to work together on the BuyNaBay project. Do you have time?', image: require('../../../../assets/Profile.jpg') },
     { id: '2', name: 'Joevel Berana', username: 'joevel_berana', message: 'I want to join the BuyNaBay project. How do we start?', image: require('../../../../assets/seller2.png') },
     { id: '3', name: 'Emmanuel Redoble', username: 'emmanuel_redoble', message: 'Emmanuel, the BuyNaBay project is really interesting. Do you have time to join me?', image: require('../../../../assets/seller3.png') },
     { id: '4', name: 'John Lloyd Morden', username: 'john_lloyd', message: 'I’m interested in working on the BuyNaBay project. Can we discuss it?', image: require('../../../../assets/seller4.png') },
@@ -43,6 +47,34 @@ export default function Inbox() {
     setSelectedMessage(null);
   };
 
+  const handleSendMessage = () => {
+    if (message.trim() || imageUri) {
+      console.log('Message sent:', message);
+      console.log('Image URI:', imageUri);
+      setMessage('');
+      setImageUri(null); // Clear the image after sending
+    }
+  };
+
+  const pickImage = async () => {
+    // Request permission to access media library
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted) {
+      // Launch the image picker if permission is granted
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        setImageUri(result.assets[0].uri); // Set the image URI to state
+      }
+    } else {
+      Alert.alert('Permission to access the media library is required!');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -52,7 +84,7 @@ export default function Inbox() {
         <Text style={styles.username}>Lloyd_Nedrom</Text>
         <View style={styles.iconContainer}>
           <Icon name="create" size={30} color="#000" style={styles.icon} />
-          <Icon name="camera-alt" size={30} color="#000" style={styles.icon} />
+          <Icon name="camera-alt" size={30} color="#000" style={styles.icon} onPress={pickImage} />
         </View>
       </View>
 
@@ -131,9 +163,18 @@ export default function Inbox() {
               </View>
 
               <View style={styles.footer}>
-                <Icon name="photo-camera" size={30} color="#000" />
-                <TextInput placeholder="Message..." style={styles.input} />
-                <Icon name="mic" size={30} color="#000" />
+                <TouchableOpacity onPress={pickImage}>
+                  <Icon name="photo-camera" size={30} color="#000" />
+                </TouchableOpacity>
+                <TextInput
+                  placeholder="Message..."
+                  style={styles.input}
+                  value={message}
+                  onChangeText={setMessage}
+                />
+                <TouchableOpacity onPress={handleSendMessage}>
+                  <Icon name="send" size={30} color="#000" />
+                </TouchableOpacity>
               </View>
             </>
           )}
