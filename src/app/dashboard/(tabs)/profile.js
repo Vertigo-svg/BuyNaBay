@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { SafeAreaView, View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Modal, TextInput, Button } from 'react-native';
+import { useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useNavigation } from '@react-navigation/native';
 import { createClient } from '@supabase/supabase-js';
 
 // Set up Supabase client
@@ -10,25 +10,26 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ProfileScreen = () => {
-  const navigation = useNavigation();
+  const route = useRoute();
+  const { username } = route.params; // Access the username parameter
   const [schoolID, setSchoolID] = useState('');
-
-  const openDrawer = () => {
-    navigation.openDrawer(); // Open the drawer when the icon is clicked
-  };
+  const [name, setName] = useState('');
+  const [editable, setEditable] = useState(false);
 
   useEffect(() => {
     async function fetchSchoolID() {
       try {
         let { data, error } = await supabase
           .from('users')
-          .select('school_id')
-          .single(); // Assuming you have a unique identifier or a way to find the correct profile
-          
+          .select('school_id, profile_name')
+          .eq('email', username) // Fetch based on username
+          .single();
+
         if (error) {
           console.error('Error fetching school ID:', error);
         } else {
           setSchoolID(data.school_id); // Set the fetched school ID to state
+          setName(data.profile_name || ''); // Set the fetched profile name to state
         }
       } catch (error) {
         console.error('Error:', error);
@@ -36,40 +37,76 @@ const ProfileScreen = () => {
     }
 
     fetchSchoolID();
-  }, []);
+  }, [username]);
+
+  const handleEditPress = () => {
+    setEditable(true);
+  };
+
+  const handleSavePress = async () => {
+    try {
+      let { error } = await supabase
+        .from('users')
+        .update({ profile_name: name }) // Update profile name
+        .eq('email', username); // Ensure correct user
+
+      if (error) {
+        console.error('Error updating profile name:', error);
+      } else {
+        setEditable(false); // Close the modal if successful
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const handleCancelPress = () => {
+    setEditable(false); // Close the modal without saving changes
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Removed header */}
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-        <Image source={require('../../../assets/joevel.jpeg')} style={styles.profileImage} />
-
-        <View style={styles.schoolIDContainer}>
-          <Text style={styles.schoolIDText}>{schoolID}</Text>
-          <Icon name="check-circle" size={18} color="#FDAD00" style={styles.verifiedIcon} />
+        <View style={styles.avatarContainer}>
+          <Image source={require('../../../assets/blank_avatar.png')} style={styles.profileImage} />
+          <Icon name="camera" size={20} color="#FFF" style={styles.cameraIcon} />
         </View>
-
-        <TouchableOpacity style={styles.editProfileButton}>
-          <Text style={styles.editProfileText}>Edit Profile</Text>
-          <Icon name="edit" size={16} color="#fff" style={styles.editProfileIcon} />
+        <Text style={styles.profileText}>Name: {name}</Text>
+        <Text style={styles.profileText}>School ID: {schoolID}</Text>
+        <TouchableOpacity style={editable ? styles.editButtonActive : styles.editButton} onPress={handleEditPress}>
+          <Text style={styles.editButtonText}>Edit Profile</Text>
         </TouchableOpacity>
+
+        {/* Horizontal line */}
+        <View style={styles.line}></View>
 
         <View style={styles.statsContainer}>
           <View style={styles.stat}>
-            <Text style={styles.statValue}>45</Text>
-            <Text style={styles.statLabel}>Followers</Text>
-          </View>
-          <View style={styles.stat}>
-            <Text style={styles.statValue}>20</Text>
-            <Text style={styles.statLabel}>Following</Text>
-          </View>
-          <View style={styles.stat}>
-            <Text style={styles.statValue}>50</Text>
+            <Text style={styles.statValue}>0</Text>
             <Text style={styles.statLabel}>Products</Text>
+          </View>
+          <View style={styles.stat}>
+            <Text style={styles.statValue}>0</Text>
+            <Text style={styles.statLabel}>Items Sold</Text>
           </View>
         </View>
 
-        <View style={styles.divider} />
+        {/* Edit Profile Modal */}
+        <Modal visible={editable} animationType="slide" transparent={true}>
+          <View style={styles.modalContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Your name"
+              placeholderTextColor="#AAA" // Placeholder text color
+              value={name}
+              onChangeText={setName}
+            />
+            <View style={styles.buttonContainer}>
+              <Button title="Save" onPress={handleSavePress} color="#1B1B41" />
+              <Button title="Cancel" onPress={handleCancelPress} color="#F2C14E" />
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     </SafeAreaView>
   );
@@ -78,85 +115,93 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1B1B41', // Dark blue background
-  },
-  drawerIcon: {
-    marginRight: 16,
-  },
-  logo: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    flex: 1,
-    marginRight: 200,
-    color: '#1B1B41', // Vibrant yellow color
+    padding: 20,
   },
   scrollViewContainer: {
     alignItems: 'center',
-    paddingTop: 80, // Adjust padding to avoid overlap with header
-    paddingBottom: 20,
+  },
+  avatarContainer: {
+    position: 'relative',
+    alignItems: 'center',
   },
   profileImage: {
-    width: 100,
-    height: 100,
+    width: 130,
+    height: 130,
     borderRadius: 50,
-    borderWidth: 4,
-    borderColor: '#FDAD00', // Vibrant yellow border
-    marginTop: 10,
+    marginBottom: 20,
   },
-  schoolIDContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
+  cameraIcon: {
+    position: 'absolute',
+    top: 83,
+    right: 15,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 12,
+    padding: 5,
   },
-  schoolIDText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff', // White text color for name
+  profileText: {
+    fontSize: 18,
+    marginVertical: 5,
   },
-  verifiedIcon: {
-    marginLeft: 6,
-  },
-  editProfileButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  editButton: {
+    marginTop: 20,
     paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    marginTop: 15,
-    backgroundColor: '#FDAD00', // Vibrant yellow background
+    paddingHorizontal: 30,
+    backgroundColor: '#1B1B41', // Dark blue
+    borderRadius: 5,
   },
-  editProfileText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginRight: 8,
-    color: '#fff', // White text for edit button
+  editButtonActive: {
+    marginTop: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    backgroundColor: '#F2C14E', // Gold
+    borderRadius: 5,
   },
-  editProfileIcon: {
-    marginLeft: 5,
+  editButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  input: {
+    width: 230,
+    height: 70,
+    borderColor: '#FFF',
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    color: '#FFF',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  line: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#DDD',
+    marginVertical: 20,
+    width: '100%',
   },
   statsContainer: {
     flexDirection: 'row',
-    marginVertical: 15,
     justifyContent: 'space-around',
-    width: '90%',
+    width: '100%',
+    marginTop: 20,
   },
   stat: {
     alignItems: 'center',
   },
   statValue: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#fff', // White text color for stats
   },
   statLabel: {
-    fontSize: 12,
-    color: '#fff', // White text color for stat labels
-  },
-  divider: {
-    width: '80%',
-    height: 1,
-    backgroundColor: '#fff', // White divider
-    marginVertical: 20,
+    fontSize: 14,
+    color: '#666',
   },
 });
 

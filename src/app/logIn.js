@@ -52,7 +52,7 @@ const LogInPage = () => {
   
         if (data && data.password === password) {
           console.log('Login successful:', data);
-          router.push({ pathname: 'dashboard', params: { username } });
+          router.push({ pathname: 'dashboard/(tabs)/profile', params: { username } });
         } else {
           alert('Invalid email or password.');
         }
