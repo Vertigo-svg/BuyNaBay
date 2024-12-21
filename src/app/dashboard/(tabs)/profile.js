@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Modal, TextInput, Button } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import * as ImagePicker from 'expo-image-picker';
 import { createClient } from '@supabase/supabase-js';
 
 // Set up Supabase client
@@ -15,28 +16,30 @@ const ProfileScreen = () => {
   const [schoolID, setSchoolID] = useState('');
   const [name, setName] = useState('');
   const [editable, setEditable] = useState(false);
+  const [profileAvatar, setProfileAvatar] = useState('');
 
   useEffect(() => {
-    async function fetchSchoolID() {
+    async function fetchUserData() {
       try {
         let { data, error } = await supabase
           .from('users')
-          .select('school_id, profile_name')
+          .select('school_id, profile_name, profile_avatar')
           .eq('email', username) // Fetch based on username
           .single();
 
         if (error) {
-          console.error('Error fetching school ID:', error);
+          console.error('Error fetching user data:', error);
         } else {
-          setSchoolID(data.school_id); // Set the fetched school ID to state
-          setName(data.profile_name || ''); // Set the fetched profile name to state
+          setSchoolID(data.school_id);
+          setName(data.profile_name || '');
+          setProfileAvatar(data.profile_avatar || '');
         }
       } catch (error) {
         console.error('Error:', error);
       }
     }
 
-    fetchSchoolID();
+    fetchUserData();
   }, [username]);
 
   const handleEditPress = () => {
@@ -47,13 +50,13 @@ const ProfileScreen = () => {
     try {
       let { error } = await supabase
         .from('users')
-        .update({ profile_name: name }) // Update profile name
-        .eq('email', username); // Ensure correct user
+        .update({ profile_name: name })
+        .eq('email', username);
 
       if (error) {
         console.error('Error updating profile name:', error);
       } else {
-        setEditable(false); // Close the modal if successful
+        setEditable(false);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -61,15 +64,57 @@ const ProfileScreen = () => {
   };
 
   const handleCancelPress = () => {
-    setEditable(false); // Close the modal without saving changes
+    setEditable(false);
+  };
+
+  const handleCameraPress = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Sorry, we need camera roll permissions to make this work!');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const selectedImageUri = result.assets[0].uri;
+      setProfileAvatar(selectedImageUri);
+
+      try {
+        let { error } = await supabase
+          .from('users')
+          .update({ profile_avatar: selectedImageUri })
+          .eq('email', username);
+
+        if (error) {
+          console.error('Error saving profile avatar:', error);
+        } else {
+          alert('Profile picture updated successfully!');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
         <View style={styles.avatarContainer}>
-          <Image source={require('../../../assets/blank_avatar.png')} style={styles.profileImage} />
-          <Icon name="camera" size={20} color="#FFF" style={styles.cameraIcon} />
+          <Image
+            source={
+              profileAvatar
+                ? { uri: profileAvatar }
+                : require('../../../assets/blank_avatar.png')
+            }
+            style={styles.profileImage}
+          />
+          <Icon name="camera" size={20} color="#FFF" style={styles.cameraIcon} onPress={handleCameraPress} />
         </View>
         <Text style={styles.profileText}>Name: {name}</Text>
         <Text style={styles.profileText}>School ID: {schoolID}</Text>
@@ -97,7 +142,7 @@ const ProfileScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="Your name"
-              placeholderTextColor="#AAA" // Placeholder text color
+              placeholderTextColor="#AAA"
               value={name}
               onChangeText={setName}
             />
@@ -146,14 +191,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingVertical: 10,
     paddingHorizontal: 30,
-    backgroundColor: '#1B1B41', // Dark blue
+    backgroundColor: '#1B1B41',
     borderRadius: 5,
   },
   editButtonActive: {
     marginTop: 20,
     paddingVertical: 10,
     paddingHorizontal: 30,
-    backgroundColor: '#F2C14E', // Gold
+    backgroundColor: '#F2C14E',
     borderRadius: 5,
   },
   editButtonText: {
