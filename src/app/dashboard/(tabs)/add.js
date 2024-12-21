@@ -22,6 +22,7 @@ const supabase = createClient(supabaseUrl, supabaseKey); // Create the Supabase 
 
 export default function Add({ navigation }) {
   // State variables for form fields and image selection
+  const [seller, setSeller] = useState('');
   const [itemName, setItemName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
@@ -49,7 +50,7 @@ export default function Add({ navigation }) {
 
   // Function to handle the item submission
   const handleAddItem = async () => {
-    if (!itemName || !description || !price || !category || !address) {
+    if (!seller || !itemName || !description || !price || !category || !address) {
       Alert.alert('Please fill out all fields.'); // Check if all fields are filled
       return;
     }
@@ -57,6 +58,7 @@ export default function Add({ navigation }) {
     // Insert the item into the Supabase database
     const { data, error } = await supabase.from('items').insert([
       {
+        seller: seller,
         itemname: itemName,
         description: description,
         price: price,
@@ -71,6 +73,7 @@ export default function Add({ navigation }) {
       Alert.alert('Error adding item: ' + error.message);
     } else {
       Alert.alert('Item added successfully!');
+      setSeller('');
       setItemName(''); // Clear form fields on success
       setDescription('');
       setPrice('');
@@ -100,6 +103,19 @@ export default function Add({ navigation }) {
             </Text>
           </TouchableOpacity>
           {image && <Image source={{ uri: image }} style={styles.imagePreview} />}
+        </View>
+
+        {/* Seller Name Input */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Seller Name</Text>
+          <TextInput
+            style={styles.input}
+            value={seller}
+            onChangeText={setSeller}
+            placeholder="Enter seller name"
+            placeholderTextColor="#FFF"
+          />
+          <Icon name="user" size={20} color="#FFF" style={styles.inputIcon} />
         </View>
 
         {/* Item Name Input */}

@@ -3,6 +3,8 @@ import { View, Text, FlatList, StyleSheet, Image, RefreshControl, TouchableOpaci
 import { createClient } from '@supabase/supabase-js';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Warning: Text strings must be rendered within a <Text> component.']);
 
 // Initialize Supabase client with the URL and key for database interaction
 const supabaseUrl = 'https://ktezclohitsiegzhhhgo.supabase.co'; 
@@ -172,6 +174,10 @@ export default function ItemList() {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.itemContainer}>
+            <View style={styles.itemSellerContainer}>
+              <Ionicons name="person-circle-outline" size={24} color="#1B1B41" />
+              <Text style={styles.itemSeller}>Seller: {item.seller}</Text> {/* Seller name added here */}
+            </View>
             <Text style={styles.itemName}>{item.itemname}</Text>
             <Text style={styles.itemDescription}>{item.description}</Text>
             <Text style={styles.itemPrice}>
@@ -305,6 +311,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
+  itemSellerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  itemSeller: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#1B1B41',
+    marginLeft: 8,
+  },
   itemName: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -334,16 +351,16 @@ const styles = StyleSheet.create({
   },
   itemImage: {
     width: '100%',
-    height: 150,
+    height: 200,
+    marginBottom: 12,
     resizeMode: 'cover',
-    marginBottom: 8,
     borderRadius: 12,
   },
   iconsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
   },
   icon: {
-    marginRight: 16,
+    padding: 8,
   },
 });
