@@ -1,36 +1,44 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Button, ScrollView, Image, Alert } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Alert,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
 import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client
-const supabaseUrl = 'https://ktezclohitsiegzhhhgo.supabase.co'; // Replace with your Supabase URL
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0ZXpjbG9oaXRzaWVnemhoaGdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwMjkxNDIsImV4cCI6MjA0ODYwNTE0Mn0.iAMC6qmEzBO-ybtLj9lQLxkrWMddippN6vsGYfmMAjQ'; // Replace with your Supabase anon key
+const supabaseUrl = 'https://ktezclohitsiegzhhhgo.supabase.co';
+const supabaseKey = 'YOUR_SUPABASE_KEY'; // Replace with your Supabase anon key
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export default function Add() {
+export default function Add({ navigation }) {
   const [itemName, setItemName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [category, setCategory] = useState('');
   const [address, setAddress] = useState('');
-  const [image, setImage] = useState(null); // State to store the selected image
+  const [image, setImage] = useState(null);
 
-  // Function to handle photo selection
   const pickImage = async () => {
-    // Request permission to access media library
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (permissionResult.granted) {
-      // Launch the image picker if permission is granted
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
       });
 
       if (!result.canceled) {
-        setImage(result.assets[0].uri); // Set the image URI to state
+        setImage(result.assets[0].uri);
       }
     } else {
       Alert.alert('Permission to access the media library is required!');
@@ -43,15 +51,14 @@ export default function Add() {
       return;
     }
 
-    // Add the item to Supabase
     const { data, error } = await supabase.from('items').insert([
       {
         itemname: itemName,
-        description: description,
-        price: price,
-        category: category,
-        address: address,
-        image: image, // Include the image URI in the submission
+        description,
+        price,
+        category,
+        address,
+        image,
       },
     ]);
 
@@ -59,7 +66,6 @@ export default function Add() {
       Alert.alert('Error adding item: ' + error.message);
     } else {
       Alert.alert('Item added successfully!');
-      // Reset the form fields
       setItemName('');
       setDescription('');
       setPrice('');
@@ -70,136 +76,206 @@ export default function Add() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.header}>Add Photo</Text>
-
-      {/* Add Photo Button */}
-      <View style={styles.imageContainer}>
-        <Button title="Pick an Image" onPress={pickImage} color="#FF6F00" />
-        {image && (
-          <Image source={{ uri: image }} style={styles.imagePreview} />
-        )}
-      </View>
-
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Item Name</Text>
-        <TextInput
-          style={styles.input}
-          value={itemName}
-          onChangeText={setItemName}
-          placeholder="Enter item name"
-          placeholderTextColor="#A0A0A0"
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Description</Text>
-        <TextInput
-          style={styles.input}
-          value={description}
-          onChangeText={setDescription}
-          placeholder="Enter item description"
-          placeholderTextColor="#A0A0A0"
-          multiline
-          numberOfLines={4}
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Price</Text>
-        <TextInput
-          style={styles.input}
-          value={price}
-          onChangeText={setPrice}
-          placeholder="Enter item price"
-          placeholderTextColor="#A0A0A0"
-          keyboardType="numeric"
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Category</Text>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={category}
-            onValueChange={(value) => setCategory(value)}
-            style={styles.picker}
-          >
-            <Picker.Item label="Select a category" value="" />
-            <Picker.Item label="Clothes" value="Clothes" />
-            <Picker.Item label="Books" value="Books" />
-            <Picker.Item label="Shoes" value="Shoes" />
-            <Picker.Item label="Foods" value="Foods" />
-          </Picker>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.logoContainer}>
+          <Image source={require('../../../assets/BuyNaBay.png')} style={styles.logo} />
+          <Text style={styles.logoText}>BuyNaBay</Text>
         </View>
       </View>
 
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Address</Text>
-        <TextInput
-          style={styles.input}
-          value={address}
-          onChangeText={setAddress}
-          placeholder="Enter item location"
-          placeholderTextColor="#A0A0A0"
-        />
-      </View>
+      <ScrollView contentContainerStyle={styles.formContainer}>
+        <Text style={styles.formHeader}>Add New Item</Text>
 
-      <Button title="Add Item" onPress={handleAddItem} color="#FF6F00" />
-    </ScrollView>
+        <View style={styles.imageContainer}>
+          <TouchableOpacity style={styles.imageButton} onPress={pickImage}>
+            <Text style={styles.imageButtonText}>Pick an Image</Text>
+          </TouchableOpacity>
+          {image && <Image source={{ uri: image }} style={styles.imagePreview} />}
+        </View>
+
+        {/* Form Fields */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Item Name</Text>
+          <TextInput
+            style={styles.input}
+            value={itemName}
+            onChangeText={setItemName}
+            placeholder="Enter item name"
+            placeholderTextColor="#B0B0B0"
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Description</Text>
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            value={description}
+            onChangeText={setDescription}
+            placeholder="Enter item description"
+            placeholderTextColor="#B0B0B0"
+            multiline
+            numberOfLines={4}
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Price</Text>
+          <TextInput
+            style={styles.input}
+            value={price}
+            onChangeText={setPrice}
+            placeholder="Enter item price"
+            placeholderTextColor="#B0B0B0"
+            keyboardType="numeric"
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Category</Text>
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={category}
+              onValueChange={(value) => setCategory(value)}
+              style={styles.picker}
+            >
+              <Picker.Item label="Select a category" value="" />
+              <Picker.Item label="Clothes" value="Clothes" />
+              <Picker.Item label="Books" value="Books" />
+              <Picker.Item label="Shoes" value="Shoes" />
+              <Picker.Item label="Foods" value="Foods" />
+            </Picker>
+          </View>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Address</Text>
+          <TextInput
+            style={styles.input}
+            value={address}
+            onChangeText={setAddress}
+            placeholder="Enter item location"
+            placeholderTextColor="#B0B0B0"
+          />
+        </View>
+
+        <TouchableOpacity style={styles.addButton} onPress={handleAddItem}>
+          <Text style={styles.addButtonText}>Add Item</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    padding: 20,
-    backgroundColor: '#FFECB3', // Light creamy background
+    flex: 1,
+    backgroundColor: '#1B1B41', // New background color
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000', // Accent color for headings
-    marginBottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logo: {
+    width: 30,
+    height: 40,
+    resizeMode: 'contain',
+    marginRight: 10,
+  },
+  logoText: {
+    fontSize: 22,
+    color: '#FFF',
+    fontFamily: 'Poppins_700Bold',
+  },
+  formContainer: {
+    flexGrow: 1,
+    margin: 20,
+  },
+  formHeader: {
+    fontSize: 35,
+    color: '#FFF',
+    fontWeight: 900,
+    fontFamily: 'Poppins',
     textAlign: 'center',
+    marginBottom: 20,
   },
   imageContainer: {
     marginBottom: 20,
     alignItems: 'center',
+  },
+  imageButton: {
+    backgroundColor: '#FDAD00', // Button color
+    paddingVertical: 15,
+    paddingHorizontal: 25,
+    borderRadius: 10,
+  },
+  imageButtonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   imagePreview: {
     width: 200,
     height: 200,
     marginTop: 10,
     borderRadius: 10,
-    borderColor: '#FF6F00', // Accent border for the image preview
     borderWidth: 2,
+    borderColor: '#FF6F00',
   },
   inputContainer: {
     marginBottom: 15,
   },
   label: {
-    color: '#000', // Black for label text
+    color: '#FFF',
     fontSize: 14,
     marginBottom: 5,
+    fontWeight: '500',
   },
   input: {
-    backgroundColor: '#FFF', // White background for input fields
-    color: '#000', // Black text for input fields
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: '#FFF',
+    color: '#333',
+    padding: 12,
+    borderRadius: 8,
     fontSize: 16,
-    borderWidth: 1, // Add subtle border
-    borderColor: '#fff', // Accent border color for input fields
+    borderWidth: 1,
+    borderColor: '#CCC',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  textArea: {
+    textAlignVertical: 'top',
   },
   pickerContainer: {
     backgroundColor: '#FFF',
-    borderRadius: 5,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#FFF',
+    borderColor: '#CCC',
   },
   picker: {
-    color: '#000',
+    color: '#333',
     fontSize: 16,
+  },
+  addButton: {
+    backgroundColor: '#FDAD00', // Button color
+    paddingVertical: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  addButtonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 18,
   },
 });
