@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
-// Initialize Supabase client
+// Initialize Supabase client with the URL and key for database interaction
 const supabaseUrl = 'https://ktezclohitsiegzhhhgo.supabase.co'; 
 const supabaseKey =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0ZXpjbG9oaXRzaWVnemhoaGdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwMjkxNDIsImV4cCI6MjA0ODYwNTE0Mn0.iAMC6qmEzBO-ybtLj9lQLxkrWMddippN6vsGYfmMAjQ'; 
@@ -12,26 +12,28 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function ItemList() {
   const navigation = useNavigation();
-  const [items, setItems] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
-  const [searchVisible, setSearchVisible] = useState(false);
-  const [searchText, setSearchText] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [likedItems, setLikedItems] = useState({});
+  const [items, setItems] = useState([]); // Stores items fetched from the database
+  const [refreshing, setRefreshing] = useState(false); // State to manage pull-to-refresh action
+  const [searchVisible, setSearchVisible] = useState(false); // Toggle visibility of search bar
+  const [searchText, setSearchText] = useState(''); // Stores the text entered in the search bar
+  const [selectedCategory, setSelectedCategory] = useState(null); // Stores the selected category for filtering items
+  const [likedItems, setLikedItems] = useState({}); // Maps item IDs to their liked status (true/false)
 
+  // Function to fetch items from the database based on selected category
   const fetchItems = async (category) => {
     let query = supabase.from('items').select('*');
     if (category) {
-      query = query.eq('category', category);
+      query = query.eq('category', category); // Filters items based on category if selected
     }
     const { data, error } = await query;
     if (error) {
       console.error('Error fetching items:', error);
     } else {
-      setItems(data);
+      setItems(data); // Updates items state with fetched data
     }
   };
 
+  // Function to fetch liked items (i.e., items added to cart)
   const fetchLikedItems = async () => {
     const { data: cartItems, error } = await supabase.from('cart').select('itemname');
     if (error) {
@@ -39,36 +41,41 @@ export default function ItemList() {
     } else {
       const likedItemsMap = {};
       cartItems.forEach((like) => {
-        likedItemsMap[like.itemname] = true; 
+        likedItemsMap[like.itemname] = true; // Marks items in the cart as liked
       });
-      setLikedItems(likedItemsMap);
+      setLikedItems(likedItemsMap); // Updates liked items state
     }
   };
 
+  // Refresh handler: fetch items and liked items on pull-to-refresh
   const onRefresh = async () => {
-    setRefreshing(true);
-    await fetchItems(selectedCategory);
-    await fetchLikedItems();
-    setRefreshing(false);
+    setRefreshing(true); // Starts refreshing
+    await fetchItems(selectedCategory); // Fetches items based on the selected category
+    await fetchLikedItems(); // Fetches liked items (cart)
+    setRefreshing(false); // Stops refreshing
   };
 
+  // Effect hook to fetch items and liked items when the component is mounted or category changes
   useEffect(() => {
     fetchItems(selectedCategory);
     fetchLikedItems();
   }, [selectedCategory]);
 
+  // Toggle like/unlike functionality for items
   const toggleLike = async (item) => {
     const isLiked = likedItems[item.id];
 
     if (isLiked) {
+      // Remove item from cart if it’s already liked
       const { error } = await supabase.from('cart').delete().eq('item_id', item.id);
       if (error) {
         console.error('Error removing from cart:', error.message);
       } else {
-        setLikedItems((prev) => ({ ...prev, [item.id]: false }));
+        setLikedItems((prev) => ({ ...prev, [item.id]: false })); // Update liked status
         console.log('Item removed from cart');
       }
     } else {
+      // Check if item already exists in cart
       const { data: existingItem, error: checkError } = await supabase
         .from('cart')
         .select('id')
@@ -83,6 +90,7 @@ export default function ItemList() {
       if (existingItem) {
         console.log('Item already exists in the cart.');
       } else {
+        // Add item to cart if it doesn't exist
         const { error } = await supabase.from('cart').insert([
           {
             itemname: item.itemname,
@@ -90,14 +98,14 @@ export default function ItemList() {
             price: item.price,
             category: item.category,
             address: item.address,
-            image: item.image || 'https://example.com/placeholder.png',
+            image: item.image || 'https://example.com/placeholder.png', // Default image if not provided
           },
         ]);
 
         if (error) {
           console.error('Error adding to cart:', error.message);
         } else {
-          setLikedItems((prev) => ({ ...prev, [item.id]: true }));
+          setLikedItems((prev) => ({ ...prev, [item.id]: true })); // Update liked status
           console.log('Item added to cart successfully');
         }
       }
@@ -106,7 +114,7 @@ export default function ItemList() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+      {/* Header with logo, search bar toggle, and notifications */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.toggleDrawer()} style={styles.iconButton}>
           <FontAwesome name="bars" size={24} color="#FDAD00" />
@@ -135,7 +143,7 @@ export default function ItemList() {
         </View>
       </View>
 
-      {/* Category Row */}
+      {/* Category row for filtering items */}
       <View style={styles.categoryContainer}>
         {[
           { name: 'Books', image: require('../../../../products/2.png') },
@@ -158,7 +166,7 @@ export default function ItemList() {
         ))}
       </View>
 
-      {/* Item List */}
+      {/* FlatList to display items */}
       <FlatList
         data={items}
         keyExtractor={(item) => item.id.toString()}
@@ -194,17 +202,18 @@ export default function ItemList() {
           </View>
         )}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> // Pull-to-refresh functionality
         }
       />
     </View>
   );
 }
 
+// Style definitions for layout and components
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFECB3', 
+    backgroundColor: '#FFECB3', // Light background color
   },
   header: {
     flexDirection: 'row',
@@ -212,9 +221,9 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingTop: 40,
     alignItems: 'center',
-    backgroundColor: '#1B1B41', 
-    marginBottom: 10, 
-    zIndex: 1, 
+    backgroundColor: '#1B1B41', // Dark header background
+    marginBottom: 10,
+    zIndex: 1,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     elevation: 5,
@@ -258,13 +267,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginVertical: 16,
-    backgroundColor: '#FFECB3', 
+    backgroundColor: '#FFECB3', // Light background for categories
   },
   categoryButton: {
     alignItems: 'center',
     padding: 8,
     borderRadius: 12,
-    width: 80, 
+    width: 80,
   },
   categoryContent: {
     alignItems: 'center',
@@ -277,10 +286,10 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 14,
     marginTop: 4,
-    color: '#333', 
+    color: '#333',
   },
   activeCategory: {
-    backgroundColor: '#FDAD00', 
+    backgroundColor: '#FDAD00', // Active category background color
   },
   activeCategoryText: {
     color: '#FFF',
@@ -288,7 +297,7 @@ const styles = StyleSheet.create({
   itemContainer: {
     marginBottom: 20,
     padding: 16,
-    backgroundColor: '#FFF3E0', 
+    backgroundColor: '#FFF3E0', // Light item background color
     borderRadius: 12,
     elevation: 3,
     shadowColor: '#000',
@@ -310,7 +319,7 @@ const styles = StyleSheet.create({
   itemPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FFAD1F',
+    color: '#FFAD1F', // Price color
     marginBottom: 4,
   },
   itemCategory: {

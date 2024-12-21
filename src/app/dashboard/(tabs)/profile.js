@@ -5,31 +5,34 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import * as ImagePicker from 'expo-image-picker';
 import { createClient } from '@supabase/supabase-js';
 
-// Set up Supabase client
+// Set up Supabase client with URL and API Key
 const SUPABASE_URL = 'https://ktezclohitsiegzhhhgo.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0ZXpjbG9oaXRzaWVnemhoaGdvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczMzAyOTE0MiwiZXhwIjoyMDQ4NjA1MTQyfQ.JuqsO0J67NiPblAc6oYlJwgHRbMfS3vorbmnNzb4jhI';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ProfileScreen = () => {
   const route = useRoute();
-  const { username } = route.params; // Access the username parameter
-  const [schoolID, setSchoolID] = useState('');
-  const [name, setName] = useState('');
-  const [editable, setEditable] = useState(false);
-  const [profileAvatar, setProfileAvatar] = useState('');
+  const { username } = route.params; // Accessing username from route params
+  const [schoolID, setSchoolID] = useState(''); // State for school ID
+  const [name, setName] = useState(''); // State for profile name
+  const [editable, setEditable] = useState(false); // State for editing mode
+  const [profileAvatar, setProfileAvatar] = useState(''); // State for profile avatar image URI
 
+  // Fetch user data from Supabase when the component mounts or username changes
   useEffect(() => {
     async function fetchUserData() {
       try {
+        // Query Supabase to fetch the user's data based on their email (username)
         let { data, error } = await supabase
           .from('users')
           .select('school_id, profile_name, profile_avatar')
-          .eq('email', username) // Fetch based on username
+          .eq('email', username) // Filter by username
           .single();
 
         if (error) {
           console.error('Error fetching user data:', error);
         } else {
+          // Update state with the fetched data
           setSchoolID(data.school_id);
           setName(data.profile_name || '');
           setProfileAvatar(data.profile_avatar || '');
@@ -40,14 +43,17 @@ const ProfileScreen = () => {
     }
 
     fetchUserData();
-  }, [username]);
+  }, [username]); // Dependency array ensures the effect runs when 'username' changes
 
+  // Handle the "Edit Profile" button press
   const handleEditPress = () => {
-    setEditable(true);
+    setEditable(true); // Enable editing mode
   };
 
+  // Handle saving the changes to the profile
   const handleSavePress = async () => {
     try {
+      // Update the user's profile name in Supabase
       let { error } = await supabase
         .from('users')
         .update({ profile_name: name })
@@ -56,17 +62,19 @@ const ProfileScreen = () => {
       if (error) {
         console.error('Error updating profile name:', error);
       } else {
-        setEditable(false);
+        setEditable(false); // Exit editing mode
       }
     } catch (error) {
       console.error('Error:', error);
     }
   };
 
+  // Handle canceling the edit mode without saving
   const handleCancelPress = () => {
-    setEditable(false);
+    setEditable(false); // Exit editing mode
   };
 
+  // Handle profile avatar change by opening the image picker
   const handleCameraPress = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -82,10 +90,11 @@ const ProfileScreen = () => {
     });
 
     if (!result.canceled) {
-      const selectedImageUri = result.assets[0].uri;
-      setProfileAvatar(selectedImageUri);
+      const selectedImageUri = result.assets[0].uri; // Get selected image URI
+      setProfileAvatar(selectedImageUri); // Update avatar state
 
       try {
+        // Update profile avatar in Supabase
         let { error } = await supabase
           .from('users')
           .update({ profile_avatar: selectedImageUri })
@@ -94,7 +103,7 @@ const ProfileScreen = () => {
         if (error) {
           console.error('Error saving profile avatar:', error);
         } else {
-          alert('Profile picture updated successfully!');
+          alert('Profile picture updated successfully!'); // Notify user on success
         }
       } catch (error) {
         console.error('Error:', error);
@@ -115,6 +124,7 @@ const ProfileScreen = () => {
       {/* Profile Content */}
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
         <View style={styles.avatarContainer}>
+          {/* Display profile image */}
           <Image
             source={
               profileAvatar
@@ -123,12 +133,16 @@ const ProfileScreen = () => {
             }
             style={styles.profileImage}
           />
+          {/* Button to change profile picture */}
           <TouchableOpacity onPress={handleCameraPress} style={styles.cameraButton}>
             <Icon name="camera" size={30} color="#FFF" />
           </TouchableOpacity>
         </View>
+        {/* Display user information */}
         <Text style={styles.profileText}>Name: {name}</Text>
         <Text style={styles.profileText}>School ID: {schoolID}</Text>
+
+        {/* Button to toggle editing mode */}
         <TouchableOpacity style={editable ? styles.editButtonActive : styles.editButton} onPress={handleEditPress}>
           <Text style={styles.editButtonText}>Edit Profile</Text>
         </TouchableOpacity>
@@ -136,6 +150,7 @@ const ProfileScreen = () => {
         {/* Horizontal line */}
         <View style={styles.line}></View>
 
+        {/* Stats container */}
         <View style={styles.statsContainer}>
           <View style={styles.stat}>
             <Text style={styles.statValue}>0</Text>
@@ -155,12 +170,14 @@ const ProfileScreen = () => {
               placeholder="Your name"
               placeholderTextColor="#AAA"
               value={name}
-              onChangeText={setName}
+              onChangeText={setName} // Update name as user types
             />
             <View style={styles.buttonContainer}>
+              {/* Save button */}
               <TouchableOpacity style={styles.saveButton} onPress={handleSavePress}>
                 <Text style={styles.saveButtonText}>Save</Text>
               </TouchableOpacity>
+              {/* Cancel button */}
               <TouchableOpacity style={styles.cancelButton} onPress={handleCancelPress}>
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
@@ -172,6 +189,7 @@ const ProfileScreen = () => {
   );
 };
 
+// Styles for the profile screen
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -10,17 +10,18 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Feather'; // Import Feather icons
-import * as ImagePicker from 'expo-image-picker';
-import { Picker } from '@react-native-picker/picker';
-import { createClient } from '@supabase/supabase-js';
+import Icon from 'react-native-vector-icons/Feather'; // Import Feather icons for UI icons
+import * as ImagePicker from 'expo-image-picker'; // Import Expo's ImagePicker for image selection
+import { Picker } from '@react-native-picker/picker'; // Import Picker for selecting categories
+import { createClient } from '@supabase/supabase-js'; // Import Supabase for database interactions
 
-// Initialize Supabase client
+// Initialize Supabase client with the URL and key
 const supabaseUrl = 'https://ktezclohitsiegzhhhgo.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0ZXpjbG9oaXRzaWVnemhoaGdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwMjkxNDIsImV4cCI6MjA0ODYwNTE0Mn0.iAMC6qmEzBO-ybtLj9lQLxkrWMddippN6vsGYfmMAjQ';
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(supabaseUrl, supabaseKey); // Create the Supabase client
 
 export default function Add({ navigation }) {
+  // State variables for form fields and image selection
   const [itemName, setItemName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
@@ -28,6 +29,7 @@ export default function Add({ navigation }) {
   const [address, setAddress] = useState('');
   const [image, setImage] = useState(null);
 
+  // Function to pick an image from the gallery
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -38,19 +40,21 @@ export default function Add({ navigation }) {
       });
 
       if (!result.canceled) {
-        setImage(result.assets[0].uri);
+        setImage(result.assets[0].uri); // Set the selected image URI
       }
     } else {
       Alert.alert('Permission to access the media library is required!');
     }
   };
 
+  // Function to handle the item submission
   const handleAddItem = async () => {
     if (!itemName || !description || !price || !category || !address) {
-      Alert.alert('Please fill out all fields.');
+      Alert.alert('Please fill out all fields.'); // Check if all fields are filled
       return;
     }
 
+    // Insert the item into the Supabase database
     const { data, error } = await supabase.from('items').insert([
       {
         itemname: itemName,
@@ -62,16 +66,17 @@ export default function Add({ navigation }) {
       },
     ]);
 
+    // Show success or error message based on the result
     if (error) {
       Alert.alert('Error adding item: ' + error.message);
     } else {
       Alert.alert('Item added successfully!');
-      setItemName('');
+      setItemName(''); // Clear form fields on success
       setDescription('');
       setPrice('');
       setCategory('');
       setAddress('');
-      setImage(null);
+      setImage(null); // Clear the image preview
     }
   };
 
@@ -87,6 +92,7 @@ export default function Add({ navigation }) {
       <ScrollView contentContainerStyle={styles.formContainer}>
         <Text style={styles.formHeader}>Add New Item</Text>
 
+        {/* Image Picker */}
         <View style={styles.imageContainer}>
           <TouchableOpacity style={styles.imageButton} onPress={pickImage}>
             <Text style={styles.imageButtonText}>
@@ -96,7 +102,7 @@ export default function Add({ navigation }) {
           {image && <Image source={{ uri: image }} style={styles.imagePreview} />}
         </View>
 
-        {/* Form Fields */}
+        {/* Item Name Input */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Item Name</Text>
           <TextInput
@@ -109,6 +115,7 @@ export default function Add({ navigation }) {
           <Icon name="tag" size={20} color="#FFF" style={styles.inputIcon} />
         </View>
 
+        {/* Description Input */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Description</Text>
           <TextInput
@@ -123,6 +130,7 @@ export default function Add({ navigation }) {
           <Icon name="file-text" size={20} color="#FFF" style={styles.inputIcon} />
         </View>
 
+        {/* Price Input */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Price</Text>
           <TextInput
@@ -136,6 +144,7 @@ export default function Add({ navigation }) {
           <Icon name="dollar-sign" size={20} color="#FFF" style={styles.inputIcon} />
         </View>
 
+        {/* Category Picker */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Category</Text>
           <View style={styles.pickerContainer}>
@@ -154,6 +163,7 @@ export default function Add({ navigation }) {
           <Icon name="list" size={20} color="#FFF" style={styles.inputIcon} />
         </View>
 
+        {/* Address Input */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Address</Text>
           <TextInput
@@ -166,6 +176,7 @@ export default function Add({ navigation }) {
           <Icon name="map-pin" size={20} color="#FFF" style={styles.inputIcon} />
         </View>
 
+        {/* Add Item Button */}
         <TouchableOpacity style={styles.addButton} onPress={handleAddItem}>
           <Text style={styles.addButtonText}>
             <Icon name="plus" size={20} color="#FFF" /> Add Item
@@ -176,10 +187,11 @@ export default function Add({ navigation }) {
   );
 }
 
+// Styles for the layout and components
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1B1B41', // New background color
+    backgroundColor: '#1B1B41', // Background color for the entire screen
     paddingHorizontal: 20,
     paddingBottom: 20,
   },
@@ -222,7 +234,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   imageButton: {
-    backgroundColor: '#FDAD00', // Button color
+    backgroundColor: '#FDAD00', // Button color for image picker
     paddingVertical: 15,
     paddingHorizontal: 25,
     borderRadius: 10,
@@ -285,7 +297,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   addButton: {
-    backgroundColor: '#FDAD00', // Button color
+    backgroundColor: '#FDAD00', // Button color for add item button
     paddingVertical: 15,
     borderRadius: 8,
     alignItems: 'center',

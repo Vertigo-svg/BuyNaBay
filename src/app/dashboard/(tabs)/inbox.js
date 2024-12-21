@@ -16,13 +16,14 @@ import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function Inbox() {
-  const [selectedMessage, setSelectedMessage] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [message, setMessage] = useState('');
-  const [imageUri, setImageUri] = useState(null);
-  const navigation = useNavigation();
+  const [selectedMessage, setSelectedMessage] = useState(null); // State for storing selected message
+  const [modalVisible, setModalVisible] = useState(false); // State for controlling modal visibility
+  const [searchQuery, setSearchQuery] = useState(''); // State for storing search query
+  const [message, setMessage] = useState(''); // State for the message input field
+  const [imageUri, setImageUri] = useState(null); // State for storing image URI
+  const navigation = useNavigation(); // Hook to handle navigation
 
+  // Mock notifications data
   const notifications = [
     { id: '1', name: 'Gab Felicitas', username: 'gabriel_felicitas', message: 'I really want us to work together on the BuyNaBay project. Do you have time?', image: require('../../../../assets/Profile.jpg') },
     { id: '2', name: 'Joevel Berana', username: 'joevel_berana', message: 'I want to join the BuyNaBay project. How do we start?', image: require('../../../../assets/seller2.png') },
@@ -33,20 +34,24 @@ export default function Inbox() {
     { id: '7', name: 'John Kenneth Pang-an', username: 'john_kenneth', message: 'Kenneth, andam naba ka maka palit sa imong paborito nga baligya? Visit our store now!', image: require('../../../../assets/seller7.png') },
   ];
 
+  // Filter notifications based on search query
   const filteredNotifications = notifications.filter(notification =>
     notification.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Function to handle message selection and show modal
   const handlePress = (item) => {
     setSelectedMessage(item);
     setModalVisible(true);
   };
 
+  // Close the modal
   const closeModal = () => {
     setModalVisible(false);
     setSelectedMessage(null);
   };
 
+  // Handle message send action
   const handleSendMessage = () => {
     if (message.trim() || imageUri) {
       console.log('Message sent:', message);
@@ -56,6 +61,7 @@ export default function Inbox() {
     }
   };
 
+  // Pick an image from the gallery
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -66,7 +72,7 @@ export default function Inbox() {
       });
 
       if (!result.canceled) {
-        setImageUri(result.assets[0].uri);
+        setImageUri(result.assets[0].uri); // Set the selected image URI
       }
     } else {
       Alert.alert('Permission to access the media library is required!');
@@ -75,6 +81,7 @@ export default function Inbox() {
 
   return (
     <View style={styles.container}>
+      {/* Header with Back button and username */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-back" size={30} color="#FDAD00" />
@@ -86,12 +93,13 @@ export default function Inbox() {
         </View>
       </View>
 
+      {/* Horizontal Scroll for user notifications */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.storiesSection}>
         {notifications.map((notification) => (
           <TouchableOpacity 
             key={notification.id} 
             style={styles.storyContainer} 
-            onPress={() => handlePress(notification)}
+            onPress={() => handlePress(notification)} // Show message in modal when pressed
           >
             <Image source={notification.image} style={styles.storyImage} />
             <Text style={styles.storyCaption}>{notification.username}</Text>
@@ -99,17 +107,20 @@ export default function Inbox() {
         ))}
       </ScrollView>
 
+      {/* Tab for selecting 'Messages' */}
       <View style={styles.tabSelector}>
         <Text style={[styles.tabText, styles.activeTab]}>Messages</Text>
       </View>
 
+      {/* Search Bar */}
       <TextInput
         placeholder="Search messages..."
         value={searchQuery}
-        onChangeText={setSearchQuery}
+        onChangeText={setSearchQuery} // Update search query state
         style={styles.searchBar}
       />
 
+      {/* List of notifications */}
       <FlatList
         data={filteredNotifications}
         keyExtractor={(item) => item.id}
@@ -124,6 +135,7 @@ export default function Inbox() {
         )}
       />
 
+      {/* Modal for viewing and sending messages */}
       <Modal animationType="slide" transparent={false} visible={modalVisible} onRequestClose={closeModal}>
         <View style={styles.modalContainer}>
           <View style={styles.topSection}>
@@ -136,6 +148,7 @@ export default function Inbox() {
 
           {selectedMessage && (
             <>
+              {/* Profile section in modal */}
               <View style={styles.profileHeader}>
                 <Image source={selectedMessage.image} style={styles.expandedProfileImage} />
                 <View style={styles.profileInfo}>
@@ -144,6 +157,7 @@ export default function Inbox() {
                 </View>
               </View>
 
+              {/* Message bubble section */}
               <View style={styles.messageArea}>
                 <View style={styles.bubbleContainer}>
                   <Image source={selectedMessage.image} style={styles.bubbleProfileImage} />
@@ -154,6 +168,7 @@ export default function Inbox() {
                 <Text style={styles.timestamp}>4:27 PM</Text>
               </View>
 
+              {/* Footer for sending messages and picking images */}
               <View style={styles.footer}>
                 <TouchableOpacity onPress={pickImage}>
                   <Icon name="photo-camera" size={30} color="#FDAD00" />
@@ -162,7 +177,7 @@ export default function Inbox() {
                   placeholder="Message..."
                   style={styles.input}
                   value={message}
-                  onChangeText={setMessage}
+                  onChangeText={setMessage} // Update message input state
                 />
                 <TouchableOpacity onPress={handleSendMessage}>
                   <Icon name="send" size={30} color="#FDAD00" />
@@ -176,6 +191,7 @@ export default function Inbox() {
   );
 }
 
+// Styles for the components
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF', paddingHorizontal: 15, paddingTop: 10 },
   header: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 50 },
