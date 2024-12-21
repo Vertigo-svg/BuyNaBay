@@ -67,7 +67,7 @@ export default function ItemList() {
 
     if (isLiked) {
       // Remove item from cart if it’s already liked
-      const { error } = await supabase.from('cart').delete().eq('item_id', item.id);
+      const { error } = await supabase.from('cart').delete().eq('itemname', item.itemname); // Use itemname instead of item_id
       if (error) {
         console.error('Error removing from cart:', error.message);
       } else {

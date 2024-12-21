@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert, SafeAreaView } from 'react-native';
 import { createClient } from '@supabase/supabase-js'; // Import Supabase to interact with the database
 import { Ionicons } from '@expo/vector-icons'; // Import Ionicons for the trash icon
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Warning: Text strings must be rendered within a <Text> component.']);
 
 // Initialize Supabase client with the URL and API key
 const supabaseUrl = 'https://ktezclohitsiegzhhhgo.supabase.co';
@@ -66,7 +68,10 @@ export default function Cart() {
       <View style={styles.header}>
         {/* Header containing the app logo */}
         <View style={styles.logoContainer}>
-          <Image source={require('../../../assets/BuyNaBay.png')} style={styles.logo} /> {/* App logo */}
+          <Image
+            source={require('../../../assets/BuyNaBay.png')}
+            style={styles.logo}
+          /> {/* App logo */}
           <Text style={styles.logoText}>BuyNaBay</Text> {/* App name */}
         </View>
       </View>
@@ -78,7 +83,9 @@ export default function Cart() {
       <FlatList
         data={cartItems} // Bind cartItems data to the list
         keyExtractor={(item) => item.id.toString()} // Set key for each list item using the item ID
-        ListEmptyComponent={<Text style={styles.emptyMessage}>Your cart is empty.</Text>} // Display message if cart is empty
+        ListEmptyComponent={
+          <Text style={styles.emptyMessage}>Your cart is empty.</Text>
+        } // Display message if cart is empty
         renderItem={({ item }) => (
           <View style={styles.itemContainer}>
             {/* Displaying item image */}
