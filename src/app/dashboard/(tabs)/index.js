@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 // Initialize Supabase client
 const supabaseUrl = 'https://ktezclohitsiegzhhhgo.supabase.co'; 
 const supabaseKey =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0ZXpjbG9oaXRzaWVnemhoaGdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwMjkxNDIsImV4cCI6MjA0ODYwNTE0Mn0.iAMC6qmEzBO-ybtLj9lQLxkrWMddippN6vsGYfmMAjQ'; // Replace with your Supabase anon key
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0ZXpjbG9oaXRzaWVnemhoaGdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwMjkxNDIsImV4cCI6MjA0ODYwNTE0Mn0.iAMC6qmEzBO-ybtLj9lQLxkrWMddippN6vsGYfmMAjQ'; 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function ItemList() {
@@ -17,13 +17,12 @@ export default function ItemList() {
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [likedItems, setLikedItems] = useState({}); // Track liked items
+  const [likedItems, setLikedItems] = useState({}); 
 
-  // Fetch items from Supabase
   const fetchItems = async (category) => {
     let query = supabase.from('items').select('*');
     if (category) {
-      query = query.eq('category', category); // Filter by category if specified
+      query = query.eq('category', category);
     }
     const { data, error } = await query;
     if (error) {
@@ -33,22 +32,19 @@ export default function ItemList() {
     }
   };
 
-  // Fetch liked items
   const fetchLikedItems = async () => {
-    const { data: cartItems, error } = await supabase.from('cart').select('itemname'); // Use 'itemname' instead of 'item_id'
+    const { data: cartItems, error } = await supabase.from('cart').select('itemname');
     if (error) {
       console.error('Error fetching liked items:', error);
     } else {
       const likedItemsMap = {};
       cartItems.forEach((like) => {
-        likedItemsMap[like.itemname] = true; // Assuming 'itemname' is the identifier for a liked item
+        likedItemsMap[like.itemname] = true; 
       });
       setLikedItems(likedItemsMap);
     }
   };
-  
 
-  // Refresh function
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchItems(selectedCategory);
@@ -61,12 +57,10 @@ export default function ItemList() {
     fetchLikedItems();
   }, [selectedCategory]);
 
-  // Toggle like status and save to cart
   const toggleLike = async (item) => {
     const isLiked = likedItems[item.id];
-  
+
     if (isLiked) {
-      // Remove from cart if already liked
       const { error } = await supabase.from('cart').delete().eq('item_id', item.id);
       if (error) {
         console.error('Error removing from cart:', error.message);
@@ -75,22 +69,20 @@ export default function ItemList() {
         console.log('Item removed from cart');
       }
     } else {
-      // Check if the item already exists in the cart to avoid duplicates
       const { data: existingItem, error: checkError } = await supabase
         .from('cart')
-        .select('id') // Use 'id' to check for existing entries
-        .eq('itemname', item.itemname) // Assuming itemname is unique or a suitable key for matching
+        .select('id')
+        .eq('itemname', item.itemname)
         .single();
-  
+
       if (checkError && checkError.code !== 'PGRST116') {
         console.error('Error checking cart:', checkError.message);
         return;
       }
-  
+
       if (existingItem) {
         console.log('Item already exists in the cart.');
       } else {
-        // Add item to cart if it doesn't already exist
         const { error } = await supabase.from('cart').insert([
           {
             itemname: item.itemname,
@@ -101,7 +93,7 @@ export default function ItemList() {
             image: item.image || 'https://example.com/placeholder.png',
           },
         ]);
-  
+
         if (error) {
           console.error('Error adding to cart:', error.message);
         } else {
@@ -111,14 +103,13 @@ export default function ItemList() {
       }
     }
   };
-  
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.toggleDrawer()} style={styles.iconButton}>
-          <FontAwesome name="bars" size={24} color="white" />
+          <FontAwesome name="bars" size={24} color="#FDAD00" />
         </TouchableOpacity>
         <View style={styles.logoContainer}>
           <Image source={require('../../../assets/OfficialBuyNaBay.png')} style={styles.logoImage} />
@@ -139,32 +130,35 @@ export default function ItemList() {
             <FontAwesome name="search" size={24} color="#FDAD00" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => console.log('Notification pressed')} style={styles.iconButton}>
-            <Ionicons name="notifications" size={24} color="white" />
+            <Ionicons name="notifications" size={24} color="#FDAD00" />
           </TouchableOpacity>
         </View>
       </View>
 
       {/* Category Row */}
-      <View style={styles.categoryRow}>
+      <View style={styles.categoryContainer}>
         {[
-          { name: 'Books', image: require('../../../../products/10.png') },
-          { name: 'Shoes', image: require('../../../../products/11.png') },
-          { name: 'Clothes', image: require('../../../../products/12.png') },
-          { name: 'Foods', image: require('../../../../products/13.png') },
+          { name: 'Books', image: require('../../../../products/2.png') },
+          { name: 'Shoes', image: require('../../../../products/3.png') },
+          { name: 'Clothes', image: require('../../../../products/4.png') },
+          { name: 'Foods', image: require('../../../../products/5.png') },
         ].map((category) => (
           <TouchableOpacity
             key={category.name}
             onPress={() => setSelectedCategory(category.name)}
-            style={styles.categoryButton}
+            style={[styles.categoryButton, selectedCategory === category.name && styles.activeCategory]}
           >
-            <Image source={category.image} style={styles.categoryImage} />
-            <Text style={[styles.categoryText, selectedCategory === category.name && styles.activeCategoryText]}>
-              {category.name}
-            </Text>
+            <View style={styles.categoryContent}>
+              <Image source={category.image} style={styles.categoryImage} />
+              <Text style={[styles.categoryText, selectedCategory === category.name && styles.activeCategoryText]}>
+                {category.name}
+              </Text>
+            </View>
           </TouchableOpacity>
         ))}
       </View>
 
+      {/* Item List */}
       <FlatList
         data={items}
         keyExtractor={(item) => item.id.toString()}
@@ -206,19 +200,20 @@ export default function ItemList() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#FFECB3', // Light creamy background
+    backgroundColor: '#FFECB3', 
   },
   header: {
-    position: 'absolute', // Fix header on top
-    top: 0,
-    left: 0,
-    right: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 16,
+    paddingTop: 40,
     alignItems: 'center',
-    backgroundColor: '#1B1B41', // Dark navy background
+    backgroundColor: '#1B1B41', 
+    marginBottom: 10, 
+    zIndex: 1, 
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    elevation: 5,
   },
   iconButton: {
     padding: 8,
@@ -228,80 +223,101 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoImage: {
-    width: 40,
+    width: 30,
     height: 40,
-    marginRight: 8,
+    resizeMode: 'contain',
+    marginRight: 10,
   },
   logoText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFAD1F', // Gold
+    fontSize: 22,
+    color: '#FFF',
+    fontFamily: 'Poppins_700Bold',
   },
   searchBar: {
-    width: 200,
+    width: '60%',
     height: 40,
     borderRadius: 20,
     paddingLeft: 16,
     backgroundColor: '#fff',
     marginHorizontal: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  categoryRow: {
-    marginTop: 60,
+  categoryContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginVertical: 16,
+    backgroundColor: '#FFF', 
+    elevation: 100, 
   },
   categoryButton: {
     alignItems: 'center',
+    padding: 8,
+    borderRadius: 12,
+    width: 80, 
+  },
+  categoryContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   categoryImage: {
-    width: 30,
-    height: 30,
+    width: 40,
+    height: 40,
   },
   categoryText: {
-    fontSize: 12,
+    fontSize: 14,
     marginTop: 4,
-    color: '#333', // Dark gray
+    color: '#333', 
+  },
+  activeCategory: {
+    backgroundColor: '#FDAD00', 
   },
   activeCategoryText: {
-    color: '#FDAD00', // Yellow
+    color: '#FFF',
   },
   itemContainer: {
     marginBottom: 20,
     padding: 16,
-    backgroundColor: '#FFF3E0', // Light peach background
-    borderRadius: 8,
-    elevation: 2,
+    backgroundColor: '#FFF3E0', 
+    borderRadius: 12,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   itemName: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#1B1B41', // Dark navy
+    color: '#1B1B41',
   },
   itemDescription: {
     fontSize: 14,
-    color: '#333', // Dark gray
+    color: '#333',
     marginBottom: 4,
   },
   itemPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FFAD1F', // Gold
+    color: '#FFAD1F',
     marginBottom: 4,
   },
   itemCategory: {
     fontSize: 14,
-    color: '#666', // Light gray
+    color: '#666',
     marginBottom: 4,
   },
   itemAddress: {
     fontSize: 14,
-    color: '#666', // Light gray
+    color: '#666',
     marginBottom: 8,
   },
   itemImage: {
@@ -309,6 +325,7 @@ const styles = StyleSheet.create({
     height: 150,
     resizeMode: 'cover',
     marginBottom: 8,
+    borderRadius: 12,
   },
   iconsContainer: {
     flexDirection: 'row',

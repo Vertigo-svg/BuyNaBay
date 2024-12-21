@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert, SafeAreaView, ScrollView } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert, SafeAreaView } from 'react-native';
 import { createClient } from '@supabase/supabase-js';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -30,6 +30,7 @@ export default function Cart() {
       Alert.alert('Error', 'Failed to remove the item.');
     } else {
       Alert.alert('Success', 'Item removed from cart.');
+      fetchCartItems(); // Refresh the cart after removal
     }
   };
 
@@ -49,7 +50,7 @@ export default function Cart() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(subscription);
+      supabase.removeChannel(subscription); // Cleanup using removeChannel
     };
   }, []);
 
@@ -62,39 +63,37 @@ export default function Cart() {
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.formContainer}>
-        <Text style={styles.formHeader}>My Cart</Text>
+      <Text style={styles.formHeader}>My Cart</Text> {/* Added My Cart header */}
 
-        <FlatList
-          data={cartItems}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.itemContainer}>
-              <Image
-                source={{ uri: item.image || 'https://example.com/placeholder.png' }}
-                style={styles.itemImage}
-              />
-              <View style={styles.itemDetails}>
-                <Text style={styles.itemName}>{item.itemname}</Text>
-                <Text style={styles.itemPrice}>
-                  {new Intl.NumberFormat('en-PH', {
-                    style: 'currency',
-                    currency: 'PHP',
-                  }).format(item.price)}
-                </Text>
-                <TouchableOpacity
-                  onPress={() => removeFromCart(item.id)}
-                  style={styles.removeButton}
-                >
-                  <Ionicons name="trash-bin-outline" size={20} color="#FF6F00" />
-                  <Text style={styles.removeText}>Remove</Text>
-                </TouchableOpacity>
-              </View>
+      <FlatList
+        data={cartItems}
+        keyExtractor={(item) => item.id.toString()}
+        ListEmptyComponent={<Text style={styles.emptyMessage}>Your cart is empty.</Text>}
+        renderItem={({ item }) => (
+          <View style={styles.itemContainer}>
+            <Image
+              source={{ uri: item.image || 'https://example.com/placeholder.png' }}
+              style={styles.itemImage}
+            />
+            <View style={styles.itemDetails}>
+              <Text style={styles.itemName}>{item.itemname}</Text>
+              <Text style={styles.itemPrice}>
+                {new Intl.NumberFormat('en-PH', {
+                  style: 'currency',
+                  currency: 'PHP',
+                }).format(item.price)}
+              </Text>
+              <TouchableOpacity
+                onPress={() => removeFromCart(item.id)}
+                style={styles.removeButton}
+              >
+                <Ionicons name="trash-bin-outline" size={20} color="#FF6F00" />
+                <Text style={styles.removeText}>Remove</Text>
+              </TouchableOpacity>
             </View>
-          )}
-          ListEmptyComponent={<Text style={styles.emptyMessage}>Your cart is empty.</Text>}
-        />
-      </ScrollView>
+          </View>
+        )}
+      />
     </SafeAreaView>
   );
 }
@@ -102,7 +101,7 @@ export default function Cart() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1B1B41', // New background color
+    backgroundColor: '#1B1B41',
     paddingHorizontal: 20,
     paddingBottom: 20,
   },
@@ -125,12 +124,12 @@ const styles = StyleSheet.create({
   },
   logoText: {
     fontSize: 22,
-    color: '#FFF', // White color for the logo text
+    color: '#FFF',
     fontFamily: 'Poppins_700Bold',
   },
   formHeader: {
     fontSize: 35,
-    color: '#FFF', // Color from your palette
+    color: '#FFF',
     fontWeight: '900',
     fontFamily: 'Poppins',
     textAlign: 'center',
@@ -138,7 +137,7 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF', // Light background color for the item container
+    backgroundColor: '#FFF',
     borderRadius: 10,
     marginBottom: 15,
     padding: 15,
@@ -166,19 +165,19 @@ const styles = StyleSheet.create({
   itemPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FF6F00', // Color from your palette
+    color: '#FDAD00',
   },
   removeButton: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    backgroundColor: '#FFF3E0', // Soft background color for the button
+    backgroundColor: '#FFF3E0',
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 20,
   },
   removeText: {
-    color: '#FF6F00', // Color from your palette
+    color: '#FDAD00',
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 5,
