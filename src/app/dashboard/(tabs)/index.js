@@ -259,7 +259,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginVertical: 16,
     backgroundColor: '#FFECB3', 
-    elevation: 100, 
   },
   categoryButton: {
     alignItems: 'center',

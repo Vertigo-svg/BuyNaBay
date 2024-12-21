@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Modal, TextInput, Button } from 'react-native';
+import { SafeAreaView, View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Modal, TextInput } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as ImagePicker from 'expo-image-picker';
@@ -104,6 +104,15 @@ const ProfileScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.logoContainer}>
+          <Image source={require('../../../assets/BuyNaBay.png')} style={styles.logo} />
+          <Text style={styles.logoText}>BuyNaBay</Text>
+        </View>
+      </View>
+
+      {/* Profile Content */}
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
         <View style={styles.avatarContainer}>
           <Image
@@ -114,7 +123,9 @@ const ProfileScreen = () => {
             }
             style={styles.profileImage}
           />
-          <Icon name="camera" size={20} color="#FFF" style={styles.cameraIcon} onPress={handleCameraPress} />
+          <TouchableOpacity onPress={handleCameraPress} style={styles.cameraButton}>
+            <Icon name="camera" size={30} color="#FFF" />
+          </TouchableOpacity>
         </View>
         <Text style={styles.profileText}>Name: {name}</Text>
         <Text style={styles.profileText}>School ID: {schoolID}</Text>
@@ -147,8 +158,12 @@ const ProfileScreen = () => {
               onChangeText={setName}
             />
             <View style={styles.buttonContainer}>
-              <Button title="Save" onPress={handleSavePress} color="#1B1B41" />
-              <Button title="Cancel" onPress={handleCancelPress} color="#F2C14E" />
+              <TouchableOpacity style={styles.saveButton} onPress={handleSavePress}>
+                <Text style={styles.saveButtonText}>Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.cancelButton} onPress={handleCancelPress}>
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </Modal>
@@ -161,37 +176,62 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: '#1B1B41',
   },
   scrollViewContainer: {
     alignItems: 'center',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logo: {
+    width: 30,
+    height: 40,
+    resizeMode: 'contain',
+    marginRight: 10,
+  },
+  logoText: {
+    fontSize: 22,
+    color: '#FFF',
+    fontFamily: 'Poppins_700Bold',
   },
   avatarContainer: {
     position: 'relative',
     alignItems: 'center',
   },
   profileImage: {
-    width: 130,
-    height: 130,
-    borderRadius: 50,
+    width: 150,  // Increased size
+    height: 150, // Increased size
+    borderRadius: 75, // Ensures it's a circle
     marginBottom: 20,
   },
-  cameraIcon: {
+  cameraButton: {
     position: 'absolute',
-    top: 83,
-    right: 15,
+    top: 100,
+    right: 10,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 12,
-    padding: 5,
+    borderRadius: 20,
+    padding: 10,
   },
   profileText: {
     fontSize: 18,
     marginVertical: 5,
+    color: '#FFF',
+    fontFamily: 'Poppins_400Regular',
   },
   editButton: {
     marginTop: 20,
     paddingVertical: 10,
     paddingHorizontal: 30,
-    backgroundColor: '#1B1B41',
+    backgroundColor: '#F2C14E',
     borderRadius: 5,
   },
   editButtonActive: {
@@ -204,6 +244,7 @@ const styles = StyleSheet.create({
   editButtonText: {
     color: '#FFF',
     fontSize: 16,
+    fontFamily: 'Poppins_400Regular',
   },
   modalContainer: {
     flex: 1,
@@ -219,6 +260,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 10,
     color: '#FFF',
+    fontFamily: 'Poppins_400Regular',
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -243,10 +285,35 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#FFF',
+    fontFamily: 'Poppins_400Regular',
   },
   statLabel: {
     fontSize: 14,
-    color: '#666',
+    color: '#AAA',
+    fontFamily: 'Poppins_400Regular',
+  },
+  saveButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    backgroundColor: '#1B1B41',
+    borderRadius: 5,
+  },
+  saveButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontFamily: 'Poppins_400Regular',
+  },
+  cancelButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    backgroundColor: '#F2C14E',
+    borderRadius: 5,
+  },
+  cancelButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontFamily: 'Poppins_400Regular',
   },
 });
 
