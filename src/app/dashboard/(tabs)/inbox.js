@@ -13,14 +13,14 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
-import * as ImagePicker from 'expo-image-picker'; // Import expo-image-picker
+import * as ImagePicker from 'expo-image-picker';
 
 export default function Inbox() {
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [message, setMessage] = useState('');
-  const [imageUri, setImageUri] = useState(null); // For storing the selected image
+  const [imageUri, setImageUri] = useState(null);
   const navigation = useNavigation();
 
   const notifications = [
@@ -52,23 +52,21 @@ export default function Inbox() {
       console.log('Message sent:', message);
       console.log('Image URI:', imageUri);
       setMessage('');
-      setImageUri(null); // Clear the image after sending
+      setImageUri(null);
     }
   };
 
   const pickImage = async () => {
-    // Request permission to access media library
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (permissionResult.granted) {
-      // Launch the image picker if permission is granted
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
       });
 
       if (!result.canceled) {
-        setImageUri(result.assets[0].uri); // Set the image URI to state
+        setImageUri(result.assets[0].uri);
       }
     } else {
       Alert.alert('Permission to access the media library is required!');
@@ -79,12 +77,12 @@ export default function Inbox() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-back" size={30} color="#000" />
+          <Icon name="arrow-back" size={30} color="#FDAD00" />
         </TouchableOpacity>
-        <Text style={styles.username}>Lloyd_Nedrom</Text>
+        <Text style={styles.username}>Joevel Berana</Text>
         <View style={styles.iconContainer}>
-          <Icon name="create" size={30} color="#000" style={styles.icon} />
-          <Icon name="camera-alt" size={30} color="#000" style={styles.icon} onPress={pickImage} />
+          <Icon name="create" size={30} color="#FDAD00" style={styles.icon} />
+          <Icon name="camera-alt" size={30} color="#FDAD00" style={styles.icon} onPress={pickImage} />
         </View>
       </View>
 
@@ -103,8 +101,6 @@ export default function Inbox() {
 
       <View style={styles.tabSelector}>
         <Text style={[styles.tabText, styles.activeTab]}>Messages</Text>
-        <Text style={styles.tabText}>Channels</Text>
-        <Text style={styles.tabText}>Requests</Text>
       </View>
 
       <TextInput
@@ -119,13 +115,9 @@ export default function Inbox() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.notificationCard} onPress={() => handlePress(item)}>
-            <TouchableOpacity onPress={() => handlePress(item)}>
-              <Image source={item.image} style={styles.profileImage} />
-            </TouchableOpacity>
+            <Image source={item.image} style={styles.profileImage} />
             <View style={styles.messageContainer}>
-              <TouchableOpacity onPress={() => handlePress(item)}>
-                <Text style={styles.name}>{item.name}</Text>
-              </TouchableOpacity>
+              <Text style={styles.name}>{item.name}</Text>
               <Text style={styles.message}>{item.message}</Text>
             </View>
           </TouchableOpacity>
@@ -136,10 +128,10 @@ export default function Inbox() {
         <View style={styles.modalContainer}>
           <View style={styles.topSection}>
             <TouchableOpacity onPress={closeModal}>
-              <Icon name="arrow-back" size={30} color="#000" />
+              <Icon name="arrow-back" size={30} color="#FDAD00" />
             </TouchableOpacity>
             <Text style={styles.modalUsername}>{selectedMessage?.username}</Text>
-            <Icon name="info-outline" size={30} color="#000" />
+            <Icon name="info-outline" size={30} color="#FDAD00" />
           </View>
 
           {selectedMessage && (
@@ -164,7 +156,7 @@ export default function Inbox() {
 
               <View style={styles.footer}>
                 <TouchableOpacity onPress={pickImage}>
-                  <Icon name="photo-camera" size={30} color="#000" />
+                  <Icon name="photo-camera" size={30} color="#FDAD00" />
                 </TouchableOpacity>
                 <TextInput
                   placeholder="Message..."
@@ -173,7 +165,7 @@ export default function Inbox() {
                   onChangeText={setMessage}
                 />
                 <TouchableOpacity onPress={handleSendMessage}>
-                  <Icon name="send" size={30} color="#000" />
+                  <Icon name="send" size={30} color="#FDAD00" />
                 </TouchableOpacity>
               </View>
             </>
@@ -185,31 +177,31 @@ export default function Inbox() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFFFFF', paddingHorizontal: 15 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20 },
-  username: { fontSize: 18, fontWeight: 'bold', textAlign: 'center', flexGrow: 1 },
+  container: { flex: 1, backgroundColor: '#FFFFFF', paddingHorizontal: 15, paddingTop: 10 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 50 },
+  username: { fontSize: 18, fontWeight: 'bold', textAlign: 'center', flexGrow: 1, color: '#1B1B41' },
   iconContainer: { flexDirection: 'row' },
   icon: { marginLeft: 15 },
   storiesSection: { marginTop: 0 },
   storyContainer: { alignItems: 'center', marginRight: 10 },
   storyImage: { width: 60, height: 60, borderRadius: 30, borderWidth: 2, borderColor: '#FFFFFF' },
-  storyCaption: { marginTop: 5, fontSize: 15, fontWeight: 'bold', marginBottom: 15 },
+  storyCaption: { marginTop: 5, fontSize: 15, fontWeight: 'bold', marginBottom: 15, color: '#1B1B41' },
   tabSelector: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 10 },
-  tabText: { fontSize: 18, fontWeight: 'bold', padding: 10 },
-  activeTab: { borderBottomWidth: 2, borderBottomColor: '#000' },
-  searchBar: { height: 40, borderWidth: 1, borderRadius: 20, paddingHorizontal: 10 },
+  tabText: { fontSize: 18, fontWeight: 'bold', padding: 10, color: '#1B1B41' },
+  activeTab: { borderBottomWidth: 2, borderBottomColor: '#FDAD00'},
+  searchBar: { height: 40, borderWidth: 1, borderRadius: 20, paddingHorizontal: 10, borderColor: '#1B1B41', marginBottom: 10 },
   notificationCard: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10 },
   profileImage: { width: 50, height: 50, borderRadius: 25 },
   messageContainer: { marginLeft: 10 },
-  name: { fontSize: 16, fontWeight: 'bold' },
+  name: { fontSize: 16, fontWeight: 'bold', color: '#1B1B41' },
   message: { fontSize: 14, color: '#888' },
-  modalContainer: { flex: 1, backgroundColor: '#FFFFFF', padding: 20 },
+  modalContainer: { flex: 1, backgroundColor: '#FFFFFF', padding: 20, marginTop: 40 },
   topSection: { flexDirection: 'row', justifyContent: 'space-between' },
-  modalUsername: { fontSize: 18, fontWeight: 'bold' },
+  modalUsername: { fontSize: 18, fontWeight: 'bold', color: '#1B1B41' },
   profileHeader: { flexDirection: 'row', marginTop: 20 },
   expandedProfileImage: { width: 60, height: 60, borderRadius: 30 },
   profileInfo: { marginLeft: 10 },
-  expandedName: { fontSize: 18, fontWeight: 'bold' },
+  expandedName: { fontSize: 18, fontWeight: 'bold', color: '#1B1B41' },
   expandedUsername: { fontSize: 16, color: '#888' },
   messageArea: { marginTop: 60, flex: 1, justifyContent: 'flex-start' },
   bubbleContainer: { flexDirection: 'row', marginBottom: 20, alignItems: 'center' },
@@ -217,5 +209,5 @@ const styles = StyleSheet.create({
   bubble: { backgroundColor: '#E0E0E0', padding: 15, borderRadius: 15, maxWidth: '70%', alignSelf: 'flex-start' },
   timestamp: { fontSize: 12, color: '#888', marginTop: 5, marginLeft: 50 },
   footer: { flexDirection: 'row', alignItems: 'center', padding: 10, borderTopWidth: 1, borderTopColor: '#E0E0E0' },
-  input: { flex: 1, borderWidth: 1, borderRadius: 20, paddingHorizontal: 15, height: 40 },
+  input: { flex: 1, borderWidth: 1, borderRadius: 20, paddingHorizontal: 15, height: 40, borderColor: '#1B1B41' },
 });
