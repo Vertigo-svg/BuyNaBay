@@ -179,7 +179,7 @@
       justifyContent: 'center',
       alignItems: 'center',
       marginTop: 20,
-      marginBottom: 10,
+      marginBottom: 5,
     },
     logoContainer: {
       flexDirection: 'row',
