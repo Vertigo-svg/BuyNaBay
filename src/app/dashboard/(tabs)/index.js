@@ -17,7 +17,7 @@ export default function ItemList() {
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [likedItems, setLikedItems] = useState({}); 
+  const [likedItems, setLikedItems] = useState({});
 
   const fetchItems = async (category) => {
     let query = supabase.from('items').select('*');
@@ -169,9 +169,13 @@ export default function ItemList() {
             <Text style={styles.itemPrice}>
               {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(item.price)}
             </Text>
-            <Text style={styles.itemCategory}>Category: {item.category}</Text>
-            <Text style={styles.itemAddress}>Address: {item.address}</Text>
-            <Image source={{ uri: `file://${item.image}` }} style={styles.itemImage} />
+            <Text style={styles.itemCategory}>
+              <Ionicons name="pricetag" size={16} color="#666" /> Category: {item.category}
+            </Text>
+            <Text style={styles.itemAddress}>
+              <Ionicons name="location-outline" size={16} color="#666" /> Address: {item.address}
+            </Text>
+            <Image source={{ uri: item.image }} style={styles.itemImage} />
             <View style={styles.iconsContainer}>
               <TouchableOpacity onPress={() => toggleLike(item)} style={styles.icon}>
                 <FontAwesome
@@ -254,7 +258,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginVertical: 16,
-    backgroundColor: '#FFF', 
+    backgroundColor: '#FFECB3', 
     elevation: 100, 
   },
   categoryButton: {
