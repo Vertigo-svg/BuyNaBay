@@ -150,18 +150,6 @@ const ProfileScreen = () => {
         {/* Horizontal line */}
         <View style={styles.line}></View>
 
-        {/* Stats container */}
-        <View style={styles.statsContainer}>
-          <View style={styles.stat}>
-            <Text style={styles.statValue}>0</Text>
-            <Text style={styles.statLabel}>Products</Text>
-          </View>
-          <View style={styles.stat}>
-            <Text style={styles.statValue}>0</Text>
-            <Text style={styles.statLabel}>Items Sold</Text>
-          </View>
-        </View>
-
         {/* Edit Profile Modal */}
         <Modal visible={editable} animationType="slide" transparent={true}>
           <View style={styles.modalContainer}>
@@ -336,3 +324,4 @@ const styles = StyleSheet.create({
 });
 
 export default ProfileScreen;
+
