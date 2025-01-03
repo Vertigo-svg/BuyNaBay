@@ -38,18 +38,24 @@ const LogInPage = () => {
 
   const handleSignIn = async () => {
     if (username && password) {
+      // Check for Admin credentials first
+      if (username === 'Admin' && password === 'buynabayadmin123') {
+        router.push({ pathname: 'admin/dashboard' });
+        return;
+      }
+
       try {
         const { data, error } = await supabase
           .from('users')
           .select('*')
           .eq('email', username)
           .single();
-  
+
         if (error) {
           alert('Login failed. Please check your credentials.');
           return;
         }
-  
+
         if (data && data.password === password) {
           console.log('Login successful:', data);
           router.push({ pathname: 'dashboard/(tabs)/profile', params: { username } });
@@ -63,9 +69,6 @@ const LogInPage = () => {
       alert('Please enter both email and password.');
     }
   };
-  
-  
-  
 
   const handleBackArrowPress = () => {
     router.push('/intro');

@@ -14,24 +14,24 @@ const RootLayout = () => {
         >
           {/* Intro screen - FIRST screen */}
           <Stack.Screen
-            name="intro"   // Ensure this is the first screen
+            name="intro" // Ensure this is the first screen
             options={{
               headerShown: false, // No header for the intro page
             }}
           />
-          
+
           {/* Login screen - SECOND screen */}
           <Stack.Screen
-            name="index"    // Login screen (index.js)
+            name="index" // Login screen (index.js)
             options={{
               headerShown: false, // Hide header for the login page
             }}
           />
-          
+
           <Stack.Screen
-            name="logIn"   // Ensure this is the first screen
+            name="logIn" // Ensure this is the first screen
             options={{
-              headerShown: false, // No header for the intro page
+              headerShown: false, // No header for the login page
             }}
           />
 
@@ -55,6 +55,14 @@ const RootLayout = () => {
               headerShown: false, // Hide header for the dashboard
             }}
           />
+             <Stack.Screen
+            name="admin"
+            options={{
+              title: 'Admin',
+              headerShown: false, // Hide header for the dashboard
+            }}
+          />
+        
         </Stack>
       </SafeAreaProvider>
     </PaperProvider>

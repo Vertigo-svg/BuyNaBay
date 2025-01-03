@@ -44,7 +44,7 @@ const WelcomeScreen = () => {
         {/* Top Header Section with Logo and Text in Row */}
         <View style={styles.header}>
           <Image
-            source={require('../assets/BuyNaBay.png')} // Replace with the path to your logo
+            source={require('../assets/BuyNaBay2.png')} // Replace with the path to your logo
             style={styles.logo}
           />
           <Text style={[styles.logoText, { fontFamily: 'Poppins_700Bold' }]}>BuyNaBay</Text>

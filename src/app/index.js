@@ -44,7 +44,7 @@ const IntroScreen = () => {
     return (
       <SafeAreaView style={styles.container}>
         <Animated.Image
-          source={require('../assets/BuyNaBay.png')} // Path to your logo image
+          source={require('../assets/BuyNaBay2.png')} // Path to your logo image
           style={[styles.logo, { opacity: fadeAnim }]} // Apply fade animation to logo
         />
         <Animated.Text
