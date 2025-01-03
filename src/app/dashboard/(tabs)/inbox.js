@@ -8,7 +8,7 @@ import {
   TextInput,
   StyleSheet,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // Import Icon library
+import { Ionicons } from '@expo/vector-icons';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client
@@ -18,7 +18,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 const UserListScreen = () => {
   const [users, setUsers] = useState([]);
-  const [currentChat, setCurrentChat] = useState(null); // To track the selected user
+  const [currentChat, setCurrentChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -224,35 +224,35 @@ const styles = StyleSheet.create({
   userContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
-    marginVertical: 5,
-    borderRadius: 10,
+    padding: 12,
+    marginVertical: 8,
+    borderRadius: 12,
     backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    elevation: 2,
+    elevation: 3,
   },
-  avatar: { width: 50, height: 50, borderRadius: 25, marginRight: 15 },
+  avatar: { width: 60, height: 60, borderRadius: 30, marginRight: 15 },
   userDetailsContainer: { flex: 1 },
   userName: { fontSize: 18, fontWeight: 'bold', color: '#333' },
   lastMessageText: { fontSize: 14, color: '#666', marginTop: 2 },
   chatHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+    padding: 14,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
   },
   backButton: { fontSize: 18, color: '#007BFF', marginRight: 10 },
-  chatHeaderTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  messagesList: { paddingVertical: 10 },
+  chatHeaderTitle: { fontSize: 20, fontWeight: 'bold', color: '#333' },
+  messagesList: { paddingVertical: 12 },
   messageBubble: {
-    padding: 10,
-    borderRadius: 10,
-    marginVertical: 5,
-    maxWidth: '75%',
+    padding: 12,
+    borderRadius: 16,
+    marginVertical: 8,
+    maxWidth: '80%',
   },
   messageBubbleSender: {
     alignSelf: 'flex-end',
@@ -273,26 +273,25 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+    padding: 14,
     borderTopWidth: 1,
     borderTopColor: '#ddd',
     backgroundColor: '#fff',
   },
   input: {
     flex: 1,
-    padding: 10,
+    padding: 12,
     borderWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 20,
+    borderRadius: 30,
     backgroundColor: '#f3f3f3',
+    marginRight: 12,
   },
   sendButton: {
-    marginLeft: 10,
     backgroundColor: '#007BFF',
-    padding: 10,
-    borderRadius: 20,
+    padding: 12,
+    borderRadius: 30,
   },
-  sendButtonText: { color: '#fff', fontWeight: 'bold' },
   addButton: { marginRight: 10 },
 });
 
