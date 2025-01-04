@@ -63,7 +63,11 @@ const AdminProducts = () => {
     }
   };
 
-  
+  // Fetch products on component mount
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
   const renderProduct = ({ item }) => (
     <View style={styles.productCard}>
       <Text style={styles.productText}>{item.name}</Text>
