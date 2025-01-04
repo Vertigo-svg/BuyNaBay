@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingVertical: 10,
     paddingHorizontal: 30,
-    backgroundColor: '#F2C14E',
+    backgroundColor: '#FDAD00',
     borderRadius: 5,
   },
   editButtonActive: {

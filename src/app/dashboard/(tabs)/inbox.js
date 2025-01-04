@@ -13,7 +13,7 @@ import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client
 const supabaseUrl = 'https://ktezclohitsiegzhhhgo.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0ZXpjbG9oaXRzaWVnemhoaGdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwMjkxNDIsImV4cCI6MjA0ODYwNTE0Mn0.iAMC6qmEzBO-ybtLj9lQLxkrWMddippN6vsGYfmMAjQ';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0ZXpjbG9oaXRzaWVnemhoaGdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzMwMjkxNDIsImV4cCI6MjA0ODYwNTE0Mn0.iAMC6qmEzBO-ybtLj9lQLxkrWMddippN6vsGYfmMAjQ'; // Replace with your actual Supabase key
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const UserListScreen = () => {
@@ -86,11 +86,11 @@ const UserListScreen = () => {
 
   const filteredUsers = users.filter(
     (user) =>
-      user.profile_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (user.profile_name?.toLowerCase().includes(searchQuery.toLowerCase()) || false) ||
       messages.some(
         (msg) =>
           (msg.sender_email === user.email || msg.receiver_email === user.email) &&
-          msg.content.toLowerCase().includes(searchQuery.toLowerCase())
+          (msg.content?.toLowerCase().includes(searchQuery.toLowerCase()) || false)
       )
   );
 
@@ -124,7 +124,7 @@ const UserListScreen = () => {
 
   const renderMessage = ({ item }) => {
     const isSender = item.sender_email === 'berana.joevel44@gmail.com';
-    const formattedTimestamp = new Date(item.created_at).toLocaleString(); // Format timestamp
+    const formattedTimestamp = new Date(item.created_at).toLocaleString();
 
     return (
       <View
@@ -133,15 +133,32 @@ const UserListScreen = () => {
           isSender ? styles.messageBubbleSender : styles.messageBubbleReceiver,
         ]}
       >
-        <Text style={styles.messageText}>{item.content}</Text>
+        <Text
+          style={
+            isSender
+              ? styles.senderMessageText
+              : styles.receiverMessageText
+          }
+        >
+          {item.content}
+        </Text>
         <View style={styles.timestampContainer}>
-          <Text style={styles.timestampText}>{formattedTimestamp}</Text>
-          <Ionicons
+          <Text
+            style={
+              isSender
+                ? styles.senderTimestampText
+                : styles.receiverTimestampText
+            }
+          >
+            {formattedTimestamp}
+            <Ionicons
             name="checkmark-outline"
-            size={14}
-            color="#888"
+            size={10}
+            color={isSender ? '#000' : '#FDAD00'} 
             style={styles.checkIcon}
           />
+          </Text>
+         
         </View>
       </View>
     );
@@ -167,7 +184,7 @@ const UserListScreen = () => {
             <Ionicons
               name="add-circle-outline"
               size={30}
-              color="#007BFF"
+              color="#FDAD00"
               style={styles.addButton}
             />
           </TouchableOpacity>
@@ -176,9 +193,10 @@ const UserListScreen = () => {
             value={newMessage}
             onChangeText={setNewMessage}
             placeholder="Type a message..."
+            placeholderTextColor="#AAA"
           />
           <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
-            <Ionicons name="send" size={20} color="#fff" />
+            <Ionicons name="send" size={20} color="#1B1B41" />
           </TouchableOpacity>
         </View>
       </View>
@@ -187,15 +205,27 @@ const UserListScreen = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.logoContainer}>
+          <Image
+            source={require('../../../assets/BuyNaBay2.png')}
+            style={styles.logo}
+          />
+          <Text style={styles.logoText}>BuyNaBay</Text>
+        </View>
+      </View>
+
       <View style={styles.searchBar}>
-        <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
+        <Ionicons name="search" size={20} color="#FDAD00" style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search"
+          placeholderTextColor="#AAA"
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
       </View>
+
       <FlatList
         data={filteredUsers}
         keyExtractor={(item) => item.email}
@@ -207,27 +237,50 @@ const UserListScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9f9f9', padding: 10 },
-  list: { paddingVertical: 10 },
+  container: {
+    flex: 1,
+    backgroundColor: '#1B1B41',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 50,
+    marginBottom: 20,
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logo: {
+    width: 30,
+    height: 40,
+    resizeMode: 'contain',
+    marginRight: 10,
+  },
+  logoText: {
+    fontSize: 22,
+    color: '#FFFF',
+    fontFamily: 'Poppins_700Bold',
+  },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
-    padding: 10,
+    padding: 15,
     borderRadius: 20,
-    backgroundColor: '#f3f3f3',
-    borderWidth: 1,
-    borderColor: '#ddd',
+    marginHorizontal: 10,
+    backgroundColor: '#FFF',
   },
   searchIcon: { marginRight: 10 },
-  searchInput: { flex: 1, fontSize: 16 },
+  searchInput: { flex: 1, fontSize: 16, color: '#FFF' },
   userContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
     marginVertical: 8,
     borderRadius: 12,
-    backgroundColor: '#fff',
+    backgroundColor: '#2E2E5E',
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 5,
@@ -235,18 +288,18 @@ const styles = StyleSheet.create({
   },
   avatar: { width: 60, height: 60, borderRadius: 30, marginRight: 15 },
   userDetailsContainer: { flex: 1 },
-  userName: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  lastMessageText: { fontSize: 14, color: '#666', marginTop: 2 },
+  userName: { fontSize: 18, fontWeight: 'bold', color: '#FDAD00' },
+  lastMessageText: { fontSize: 14, color: '#FFF', marginTop: 2 },
   chatHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 14,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    backgroundColor: '#2E2E5E',
+    borderBottomColor: '#FDAD00',
+    marginTop: 50,
   },
-  backButton: { fontSize: 18, color: '#007BFF', marginRight: 10 },
-  chatHeaderTitle: { fontSize: 20, fontWeight: 'bold', color: '#333' },
+  backButton: { fontSize: 18, color: '#FDAD00', marginRight: 10 },
+  chatHeaderTitle: { fontSize: 20, fontWeight: 'bold', color: '#FFF' },
   messagesList: { paddingVertical: 12 },
   messageBubble: {
     padding: 12,
@@ -256,39 +309,47 @@ const styles = StyleSheet.create({
   },
   messageBubbleSender: {
     alignSelf: 'flex-end',
-    backgroundColor: '#007BFF',
+    backgroundColor: '#FDAD00',
   },
   messageBubbleReceiver: {
     alignSelf: 'flex-start',
-    backgroundColor: '#E5E5EA',
+    backgroundColor: '#2E2E5E',
   },
-  messageText: { color: '#fff', fontSize: 16 },
-  timestampContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 5,
+  senderMessageText: {
+    color: '#FFF',
+    fontSize: 16,
   },
-  timestampText: { fontSize: 12, color: '#888', marginRight: 5 },
-  checkIcon: {},
+  receiverMessageText: {
+    color: '#FFF',
+    fontSize: 16,
+  },
+  senderTimestampText: {
+    fontSize: 11,
+    color: '#000',
+    marginRight: 5,
+  },
+  receiverTimestampText: {
+    fontSize: 11,
+    color: '#FDAD00',
+    marginRight: 5,
+  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 14,
-    borderTopWidth: 1,
-    borderTopColor: '#ddd',
-    backgroundColor: '#fff',
+    borderTopColor: '#FDAD00',
+    backgroundColor: '#2E2E5E',
   },
   input: {
     flex: 1,
     padding: 12,
-    borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 30,
-    backgroundColor: '#f3f3f3',
+    backgroundColor: '#FFF',
+    color: '#2E2E5E',
     marginRight: 12,
   },
   sendButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#FDAD00',
     padding: 12,
     borderRadius: 30,
   },

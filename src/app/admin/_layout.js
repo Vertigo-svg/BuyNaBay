@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, ScrollView, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
-import AppLoading from 'expo-app-loading';
+import * as SplashScreen from 'expo-splash-screen';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+
 import { fetchCategories, fetchUsers, fetchItems, updateRecord, insertRecord } from './database';
 
 const AdminLayout = ({ children }) => {
@@ -21,21 +22,41 @@ const AdminLayout = ({ children }) => {
     Poppins_700Bold,
   });
 
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  useEffect(() => {
+    if (!fontsLoaded) {
+      SplashScreen.preventAutoHideAsync();
+    }
+  }, []);
+
   if (!fontsLoaded) {
-    return <AppLoading />;
+    return null; // Return null until fonts are loaded
   }
 
   const handleViewDatabase = async () => {
-    setIsViewingDatabase(true);
-    const categoryData = await fetchCategories();
-    const userData = await fetchUsers();
-    const itemData = await fetchItems();
-    setCategories(categoryData);
-    setUsers(userData);
-    setItems(itemData);
+    try {
+      setIsViewingDatabase(true);
+      const categoryData = await fetchCategories();
+      const userData = await fetchUsers();
+      const itemData = await fetchItems();
+      setCategories(categoryData);
+      setUsers(userData);
+      setItems(itemData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
   };
 
   const handleEdit = (table, id, data) => {
+    if (!data || !id) {
+      console.error('Invalid data or ID for editing');
+      return;
+    }
     setEditData({ table, id, data });
   };
 
@@ -46,9 +67,13 @@ const AdminLayout = ({ children }) => {
       updatedData[key] = data[key];
     });
 
-    await updateRecord(table, id, updatedData);
-    setEditData(null);
-    handleViewDatabase();
+    try {
+      await updateRecord(table, id, updatedData);
+      setEditData(null);
+      handleViewDatabase();
+    } catch (error) {
+      console.error('Error saving edit:', error);
+    }
   };
 
   const renderTable = (title, data, columns, tableName) => (
@@ -135,7 +160,7 @@ const AdminLayout = ({ children }) => {
           style={styles.navItem}
           onPress={handleViewDatabase}
         >
-          <FontAwesome5 name="database"   size={18} color="#FDAD00" style={styles.navIcon} />
+          <FontAwesome5 name="database" size={18} color="#FDAD00" style={styles.navIcon} />
           <Text style={styles.navText}>Database</Text>
         </TouchableOpacity>
       </LinearGradient>

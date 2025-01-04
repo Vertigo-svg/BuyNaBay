@@ -1,13 +1,13 @@
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, StyleSheet, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useNavigation } from '@react-navigation/native'; // Import the useNavigation hook
+import { useNavigation } from '@react-navigation/native';
 
 export default function Settings() {
-  const navigation = useNavigation(); // Initialize the navigation object
+  const navigation = useNavigation();
 
   const openDrawer = () => {
-    navigation.openDrawer(); // Open the drawer programmatically when clicked
+    navigation.openDrawer();
   };
 
   return (
@@ -77,9 +77,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF',
     zIndex: 10,
     borderBottomWidth: 0,
+    marginTop:40,
     borderBottomColor: 'black',
   },
   drawerIcon: { 
@@ -92,15 +93,13 @@ const styles = StyleSheet.create({
     color: '#1B1B41',
     flex: 1,
   },
-  notificationIcon: {
-    marginLeft: 16,
-  },
   scrollContainer: {
     flexGrow: 1,
     paddingTop: 80, // Give space for the fixed header
     paddingHorizontal: 20,
   },
   sectionLabel: {
+    marginTop:50,
     fontSize: 18,
     fontWeight: 'bold',
     marginVertical: 10,
@@ -116,7 +115,7 @@ const styles = StyleSheet.create({
   settingText: {
     fontSize: 16,
     marginLeft: 10,
-    color: '#fff', // White text for settings options
+    color: '#FFF', // White text for settings options
   },
   icon: {
     marginRight: 10,

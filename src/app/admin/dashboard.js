@@ -1,109 +1,166 @@
-import React from 'react';
-import { SafeAreaView, Text, StyleSheet, View, TouchableOpacity, FlatList, Image } from 'react-native';
-import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import AppLoading from 'expo-app-loading';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
+import { useRouter } from 'expo-router';
+import { FontAwesome5 } from '@expo/vector-icons';
+import { fetchDashboardData } from './database'; // Assuming you have a function to fetch dashboard data
 
-const adminData = [
-  { id: '1', title: 'Manage Users', icon: 'users' },
-  { id: '2', title: 'View Reports', icon: 'line-chart' },
-  { id: '3', title: 'Settings', icon: 'cogs' },
-];
+const Dashboard = () => {
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-const AdminDashboard = () => {
-  const [fontsLoaded] = useFonts({
-    Poppins_400Regular,
-    Poppins_700Bold,
-  });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchDashboardData(); // Fetch data for the dashboard
+        setDashboardData(data);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
-  if (!fontsLoaded) {
-    return <AppLoading />;
-  }
+  const handleNavigateTo = (route) => {
+    router.push(route);
+  };
 
-  const renderCard = ({ item }) => (
-    <TouchableOpacity style={styles.card}>
-      <Icon name={item.icon} size={24} color="#1b1b41" />
-      <Text style={styles.cardTitle}>{item.title}</Text>
-    </TouchableOpacity>
+  const renderSummaryCard = (title, value) => (
+    <View style={styles.summaryCard}>
+      <Text style={styles.summaryCardTitle}>{title}</Text>
+      <Text style={styles.summaryCardValue}>{value}</Text>
+    </View>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Logo and Title */}
-      <View style={styles.logoContainer}>
-        <Image source={require('../../assets/BuyNaBay.png')} style={styles.logo} />
-        <Text style={styles.logoText}>BuyNaBay</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Dashboard</Text>
+
+      {/* Summary Data */}
+      <View style={styles.summaryContainer}>
+        {loading ? (
+          <ActivityIndicator size="large" color="#FDAD00" />
+        ) : dashboardData ? (
+          <>
+            {renderSummaryCard('Total Products', dashboardData.totalProducts)}
+            {renderSummaryCard('Total Users', dashboardData.totalUsers)}
+            {renderSummaryCard('Total Sales', `$${dashboardData.totalSales}`)}
+          </>
+        ) : (
+          <Text style={styles.errorText}>Failed to load dashboard data</Text>
+        )}
       </View>
 
-      {/* Dashboard Title */}
-      <Text style={styles.title}>Admin Dashboard</Text>
+      {/* Navigation Buttons */}
+      <View style={styles.navButtonsContainer}>
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => handleNavigateTo('/admin/products')}
+        >
+          <FontAwesome5 name="box" size={20} color="#1B1B41" />
+          <Text style={styles.navButtonText}>Manage Products</Text>
+        </TouchableOpacity>
 
-      {/* Functional Cards */}
-      <FlatList
-        data={adminData}
-        keyExtractor={(item) => item.id}
-        renderItem={renderCard}
-        numColumns={2} // Display cards in two columns for a responsive layout
-        contentContainerStyle={styles.cardContainer}
-      />
-    </SafeAreaView>
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => handleNavigateTo('/admin/users')}
+        >
+          <FontAwesome5 name="users" size={20} color="#1B1B41" />
+          <Text style={styles.navButtonText}>Manage Users</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => handleNavigateTo('/admin/reports')}
+        >
+          <FontAwesome5 name="chart-bar" size={20} color="#1B1B41" />
+          <Text style={styles.navButtonText}>View Reports</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => handleNavigateTo('/admin/database')}
+        >
+          <FontAwesome5 name="database" size={20} color="#1B1B41" />
+          <Text style={styles.navButtonText}>Database</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1b1b41',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
+    backgroundColor: '#FFFFFF',
     padding: 20,
-  },
-  logoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  logo: {
-    width: 50,
-    height: 50,
-    marginRight: 10,
-  },
-  logoText: {
-    fontSize: 24,
-    fontFamily: 'Poppins_700Bold',
-    color: '#FDAD00',
   },
   title: {
     fontSize: 28,
     fontFamily: 'Poppins_700Bold',
-    color: '#FDAD00',
+    color: '#1B1B41',
     marginBottom: 20,
-    textAlign: 'center',
   },
-  cardContainer: {
+  summaryContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap', // Allow cards to wrap in multiple rows
-    justifyContent: 'space-evenly', // Center the cards
-    width: '100%',
+    justifyContent: 'space-between',
+    marginBottom: 30,
+    flexWrap: 'wrap', // Allows the summary cards to stack on smaller screens
   },
-  card: {
+  summaryCard: {
     backgroundColor: '#FDAD00',
-    width: '45%', // Card width takes up 45% of the screen for two-column layout
-    padding: 20,
     borderRadius: 10,
-    marginVertical: 10,
+    padding: 15,
+    flex: 1,
+    marginHorizontal: 5,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
+    marginBottom: 15, // Ensure spacing between cards when stacked
+  },
+  summaryCardTitle: {
+    fontSize: 16,
+    fontFamily: 'Poppins_700Bold',
+    color: '#1B1B41',
+  },
+  summaryCardValue: {
+    fontSize: 20,
+    fontFamily: 'Poppins_700Bold',
+    color: '#1B1B41',
+    marginTop: 10,
+  },
+  navButtonsContainer: {
+    marginTop: 20,
+  },
+  navButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    marginHorizontal: 5,
+    backgroundColor: '#FDAD00',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
   },
-  cardTitle: {
+  navButtonText: {
     fontSize: 18,
-    fontFamily: 'Poppins_400Regular',
-    color: '#1b1b41',
-    marginLeft: 10,
+    fontFamily: 'Poppins_700Bold',
+    color: '#1B1B41',
+    marginLeft: 15,
+  },
+  errorText: {
+    color: '#FF0000',
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
 
-export default AdminDashboard;
+export default Dashboard;
