@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "buynabay",
+    "name": "BuyNaBay",
     "slug": "buynabay",
-    "scheme":"com.buynabay.app",
+    "scheme": "com.BuyNaBay.app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/OfficialBuyNaBay.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/BuyNaBay4.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -16,16 +16,26 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.BuyNaBay",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/BuyNaBay4.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/BuyNaBay4.png"
     },
     "plugins": [
-      "expo-router"
-    ]
+      "expo-router",
+      "expo-splash-screen"
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "2c9e5d84-a8c7-481c-a613-d52cdd15e5ae"
+      }
+    }
   }
 }
