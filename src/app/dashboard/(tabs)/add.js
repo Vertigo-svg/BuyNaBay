@@ -48,38 +48,71 @@ export default function Add({ navigation }) {
     }
   };
 
-  // Function to handle the item submission
   const handleAddItem = async () => {
-    if (!seller || !itemName || !description || !price || !category || !address) {
-      Alert.alert('Please fill out all fields.'); // Check if all fields are filled
+    if (!seller || !itemName || !description || !price || !category || !address || !image) {
+      Alert.alert('Please fill out all fields and select an image.');
       return;
     }
-
-    // Insert the item into the Supabase database
-    const { data, error } = await supabase.from('items').insert([
-      {
-        seller: seller,
-        itemname: itemName,
-        description: description,
-        price: price,
-        category: category,
-        address: address,
-        image: image,
-      },
-    ]);
-
-    // Show success or error message based on the result
-    if (error) {
-      Alert.alert('Error adding item: ' + error.message);
-    } else {
+  
+    try {
+      let imageUrl = null;
+  
+      // Upload the image if one is selected
+      if (image) {
+        const imageExt = image.split('.').pop(); // Get image extension
+        const fileName = `item_${Date.now()}.${imageExt}`; // Unique file name
+        const formData = new FormData();
+  
+        formData.append('file', {
+          uri: image,
+          name: fileName,
+          type: `image/${imageExt}`,
+        });
+  
+        // Upload image to Supabase Storage
+        const { data: storageData, error: storageError } = await supabase.storage
+          .from('item-images')
+          .upload(fileName, {
+            uri: image,
+            name: fileName,
+            type: `image/${imageExt}`,
+          });
+  
+        if (storageError) {
+          throw storageError;
+        }
+  
+        // Get the public URL of the uploaded image
+        imageUrl = supabase.storage.from('item-images').getPublicUrl(fileName).data.publicUrl;
+      }
+  
+      // Insert the item into the Supabase database with the image URL
+      const { data, error } = await supabase.from('items').insert([
+        {
+          seller: seller,
+          itemname: itemName,
+          description: description,
+          price: price,
+          category: category,
+          address: address,
+          image: imageUrl, // Store image URL in the database
+        },
+      ]);
+  
+      if (error) {
+        throw error;
+      }
+  
       Alert.alert('Item added successfully!');
       setSeller('');
-      setItemName(''); // Clear form fields on success
+      setItemName('');
       setDescription('');
       setPrice('');
       setCategory('');
       setAddress('');
-      setImage(null); // Clear the image preview
+      setImage(null);
+    } catch (err) {
+      Alert.alert('Error adding item: ' + err.message);
     }
   };
 
