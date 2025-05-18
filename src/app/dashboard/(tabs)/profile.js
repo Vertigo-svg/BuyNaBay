@@ -1,13 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Modal, TextInput, Alert } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  TextInput,
+  Alert,
+  ActivityIndicator,
+  StatusBar,
+  Platform,
+  Dimensions
+} from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { createClient } from '@supabase/supabase-js';
+import { Ionicons } from '@expo/vector-icons';
 
 // Set up Supabase client with URL and API Key
 const SUPABASE_URL = 'https://ktezclohitsiegzhhhgo.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt0ZXpjbG9oaXRzaWVnemhoaGdvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczMzAyOTE0MiwiZXhwIjoyMDQ4NjA1MTQyfQ.JuqsO0J67NiPblAc6oYlJwgHRbMfS3vorbmnNzb4jhI';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const { width } = Dimensions.get('window');
 
 const ProfileScreen = () => {
   const route = useRoute();
@@ -17,6 +34,9 @@ const ProfileScreen = () => {
   const [profileAvatar, setProfileAvatar] = useState('');
   const [editable, setEditable] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [showActionButtons, setShowActionButtons] = useState(false);
 
   useEffect(() => {
     async function fetchUserData() {
@@ -29,6 +49,7 @@ const ProfileScreen = () => {
 
         if (error) {
           console.error('Error fetching user data:', error);
+          setLoading(false);
           return;
         }
 
@@ -39,8 +60,10 @@ const ProfileScreen = () => {
         setSchoolID(data.school_id);
         setName(data.profile_name || '');
         setProfileAvatar(data.profile_avatar || defaultAvatar.publicUrl);
+        setLoading(false);
       } catch (error) {
         console.error('Error:', error);
+        setLoading(false);
       }
     }
 
@@ -53,16 +76,17 @@ const ProfileScreen = () => {
     if (permissionResult.granted) {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: false,
+        allowsEditing: true,
         aspect: [1, 1],
-        quality: 1,
+        quality: 0.8,
       });
 
       if (!result.canceled) {
         setSelectedImage(result.assets[0].uri);
+        setShowActionButtons(true);
       }
     } else {
-      Alert.alert('Permission to access the media library is required!');
+      Alert.alert('Permission Required', 'Please allow access to your photo library to change your profile picture.');
     }
   };
 
@@ -102,6 +126,7 @@ const ProfileScreen = () => {
   };
 
   const handleSavePress = async () => {
+    setSavingProfile(true);
     let avatarUrl = profileAvatar;
 
     if (selectedImage) {
@@ -119,29 +144,24 @@ const ProfileScreen = () => {
 
       if (error) {
         console.error('Error updating profile:', error);
+        Alert.alert('Update Failed', 'Unable to update your profile. Please try again.');
       } else {
         setProfileAvatar(avatarUrl);
         setEditable(false);
-        Alert.alert('Profile updated successfully!');
+        setShowActionButtons(false);
+        Alert.alert('Success', 'Your profile has been updated successfully!');
       }
     } catch (error) {
       console.error('Error:', error);
+      Alert.alert('Error', 'Something went wrong. Please try again later.');
+    } finally {
+      setSavingProfile(false);
     }
   };
 
   const handleDeleteAvatar = async () => {
     try {
-      // Delete avatar from Supabase storage
-      const { error } = await supabase.storage
-        .from('users-avatar')
-        .remove([profileAvatar.split('/').pop()]); // Remove the avatar image by its name
-
-      if (error) {
-        console.error('Error deleting avatar:', error);
-        return;
-      }
-
-      // Set the avatar back to the default "blank_avatar.png"
+      // Get the default avatar URL
       const { data: defaultAvatar } = supabase.storage
         .from('users-avatar')
         .getPublicUrl('blank_avatar.png');
@@ -152,15 +172,35 @@ const ProfileScreen = () => {
         .update({ profile_avatar: defaultAvatar.publicUrl })
         .eq('email', username);
 
-      setProfileAvatar(defaultAvatar.publicUrl); // Set locally
-      Alert.alert('Avatar deleted successfully!');
+      setProfileAvatar(defaultAvatar.publicUrl);
+      setSelectedImage(null);
+      setShowActionButtons(false);
+      Alert.alert('Success', 'Profile picture has been reset to default.');
     } catch (error) {
       console.error('Error:', error);
+      Alert.alert('Error', 'Unable to reset profile picture. Please try again.');
     }
   };
 
+  const cancelImageSelection = () => {
+    setSelectedImage(null);
+    setShowActionButtons(false);
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FDAD00" />
+        <Text style={styles.loadingText}>Loading profile...</Text>
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#1B1B41" />
+      
+      {/* Header */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
           <Image source={require('../../../assets/BuyNaBay.png')} style={styles.logo} />
@@ -168,82 +208,133 @@ const ProfileScreen = () => {
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-        <View style={styles.avatarContainer}>
-          <Image
-            source={selectedImage ? { uri: selectedImage } : { uri: profileAvatar }}
-            style={styles.profileImage}
-          />
-        </View>
-
-        <Text style={styles.profileText}>Name: {name}</Text>
-        <Text style={styles.profileText}>School ID: {schoolID}</Text>
-
-        <TouchableOpacity
-          style={editable ? styles.editButtonActive : styles.editButton}
-          onPress={() => setEditable(!editable)}
-        >
-          <Text style={styles.editButtonText}>
-            {editable ? 'Cancel' : 'Edit Profile'}
-          </Text>
-        </TouchableOpacity>
-
-        {editable && (
-          <View style={styles.editContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Your name"
-              placeholderTextColor="#AAA"
-              value={name}
-              onChangeText={setName}
+      <ScrollView 
+        contentContainerStyle={styles.scrollViewContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Profile Card */}
+        <View style={styles.profileCard}>
+          <View style={styles.avatarContainer}>
+            <Image
+              source={selectedImage ? { uri: selectedImage } : { uri: profileAvatar }}
+              style={styles.profileImage}
             />
-
-            <TouchableOpacity style={styles.uploadButton} onPress={editAvatar}>
-              <Text style={styles.uploadButtonText}>Change Profile Picture</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAvatar}>
-              <Text style={styles.deleteButtonText}>Delete Avatar</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.saveButton} onPress={handleSavePress}>
-              <Text style={styles.saveButtonText}>Save</Text>
-            </TouchableOpacity>
+            {!editable ? (
+              <TouchableOpacity style={styles.editProfileButton} onPress={() => setEditable(true)}>
+                <Ionicons name="pencil" size={18} color="#FFF" />
+                <Text style={styles.editProfileButtonText}>Edit Profile</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity style={styles.editAvatarButton} onPress={editAvatar}>
+                <Ionicons name="camera" size={22} color="#FFF" />
+              </TouchableOpacity>
+            )}
           </View>
-        )}
+
+          {/* Image action buttons */}
+          {showActionButtons && (
+            <View style={styles.imageActionButtons}>
+              <TouchableOpacity style={styles.imageActionButton} onPress={cancelImageSelection}>
+                <Ionicons name="close-circle" size={24} color="#FF4757" />
+                <Text style={styles.imageActionButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.imageActionButton} onPress={handleDeleteAvatar}>
+                <Ionicons name="trash" size={24} color="#FF4757" />
+                <Text style={styles.imageActionButtonText}>Reset</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Profile Info */}
+          <View style={styles.profileInfo}>
+            {!editable ? (
+              <>
+                <Text style={styles.profileName}>{name || 'Add your name'}</Text>
+                <Text style={styles.profileID}>{schoolID}</Text>
+                <Text style={styles.profileEmail}>{username}</Text>
+              </>
+            ) : (
+              <View style={styles.editContainer}>
+                <Text style={styles.inputLabel}>Name</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your name"
+                  placeholderTextColor="#AAA"
+                  value={name}
+                  onChangeText={setName}
+                />
+                
+                <Text style={styles.staticInfoLabel}>School ID</Text>
+                <Text style={styles.staticInfoValue}>{schoolID}</Text>
+                
+                <Text style={styles.staticInfoLabel}>Email</Text>
+                <Text style={styles.staticInfoValue}>{username}</Text>
+
+                <View style={styles.buttonGroup}>
+                  <TouchableOpacity 
+                    style={[styles.actionButton, styles.cancelButton]} 
+                    onPress={() => {
+                      setEditable(false);
+                      setSelectedImage(null);
+                      setShowActionButtons(false);
+                    }}
+                  >
+                    <Text style={styles.actionButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={[styles.actionButton, styles.saveButton]}
+                    onPress={handleSavePress}
+                    disabled={savingProfile}
+                  >
+                    {savingProfile ? (
+                      <ActivityIndicator size="small" color="#1B1B41" />
+                    ) : (
+                      <>
+                        <Ionicons name="save" size={18} color="#1B1B41" />
+                        <Text style={styles.saveButtonText}>Save</Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+          </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  // Add the necessary styles for the new delete button
-  deleteButton: {
-    marginTop: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 30,
-    backgroundColor: '#E74C3C',
-    borderRadius: 5,
-  },
-  deleteButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontFamily: 'Poppins_400Regular',
-  },
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#1B1B41',
   },
-  scrollViewContainer: {
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#1B1B41',
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#FFF',
+    fontFamily: 'Poppins_400Regular',
+  },
+  scrollViewContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 20,
+    paddingTop: Platform.OS === 'android' ? 30 : 10,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   logoContainer: {
     flexDirection: 'row',
@@ -260,87 +351,165 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontFamily: 'Poppins_700Bold',
   },
+  profileCard: {
+    width: '100%',
+    marginTop: 30,
+    backgroundColor: 'rgba(44, 44, 84, 0.6)',
+    borderRadius: 20,
+    overflow: 'hidden',
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 8,
+  },
   avatarContainer: {
     alignItems: 'center',
+    marginBottom: 20,
+    position: 'relative',
   },
   profileImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    marginBottom: 20,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 4,
+    borderColor: '#FDAD00',
   },
-  profileText: {
-    fontSize: 18,
-    marginVertical: 5,
-    color: '#FFF',
-    fontFamily: 'Poppins_400Regular',
-  },
-  editButton: {
-    marginTop: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 30,
+  editAvatarButton: {
+    position: 'absolute',
+    bottom: 0,
+    right: width * 0.32,
     backgroundColor: '#FDAD00',
-    borderRadius: 5,
-  },
-  editButtonActive: {
-    marginTop: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 30,
-    backgroundColor: '#F2C14E',
-    borderRadius: 5,
-  },
-  editButtonText: {
-    color: '#000',
-    fontSize: 16,
-    fontFamily: 'Poppins_400Regular',
-  },
-  editContainer: {
-    marginTop: 20,
-    width: '90%',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#2C2C54',
-    borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 5,
   },
-  input: {
-    width: 230,
-    height: 50,
-    borderColor: '#FFF',
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-    color: '#FFF',
-    fontFamily: 'Poppins_400Regular',
-  },
-  uploadButton: {
-    marginTop: 15,
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    backgroundColor: '#FDAD00',
-    borderRadius: 10,
+  profileInfo: {
     alignItems: 'center',
   },
-  uploadButtonText: {
-    fontSize: 16,
-    color: '#1B1B41',
+  profileName: {
+    fontSize: 24,
     fontFamily: 'Poppins_600SemiBold',
+    color: '#FFF',
+    marginBottom: 8,
   },
-  saveButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    backgroundColor: '#F2C14E',
-    borderRadius: 5,
-    marginTop: 15,
-  },
-  saveButtonText: {
-    color: '#000',
+  profileID: {
     fontSize: 16,
     fontFamily: 'Poppins_400Regular',
+    color: '#FDAD00',
+    marginBottom: 4,
+  },
+  profileEmail: {
+    fontSize: 14,
+    fontFamily: 'Poppins_400Regular',
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  editProfileButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2C2C54',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+    marginTop: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  editProfileButtonText: {
+    color: '#FFF',
+    marginLeft: 5,
+    fontFamily: 'Poppins_400Regular',
+  },
+  imageActionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 10,
+  },
+  imageActionButton: {
+    alignItems: 'center',
+    marginHorizontal: 15,
+  },
+  imageActionButtonText: {
+    color: '#FFF',
+    marginTop: 5,
+    fontSize: 12,
+    fontFamily: 'Poppins_400Regular',
+  },
+  editContainer: {
+    width: '100%',
+    padding: 15,
+  },
+  inputLabel: {
+    fontSize: 14,
+    color: '#FDAD00',
+    fontFamily: 'Poppins_500Medium',
+    marginBottom: 5,
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    color: '#FFF',
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 16,
+  },
+  staticInfoLabel: {
+    fontSize: 14,
+    color: '#FDAD00',
+    fontFamily: 'Poppins_500Medium',
+    marginBottom: 5,
+  },
+  staticInfoValue: {
+    fontSize: 16,
+    color: '#FFF',
+    fontFamily: 'Poppins_400Regular',
+    marginBottom: 15,
+    paddingHorizontal: 15,
+  },
+  buttonGroup: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    width: '48%',
+  },
+  cancelButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  saveButton: {
+    backgroundColor: '#FDAD00',
+  },
+  actionButtonText: {
+    fontSize: 16,
+    color: '#FFF',
+    fontFamily: 'Poppins_500Medium',
+  },
+  saveButtonText: {
+    fontSize: 16,
+    color: '#1B1B41',
+    fontFamily: 'Poppins_500Medium',
+    marginLeft: 5,
   },
 });
 
