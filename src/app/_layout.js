@@ -49,6 +49,12 @@ const RootLayout = () => {
             }}
           />
           <Stack.Screen
+            name="verify"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
             name="dashboard"
             options={{
               title: 'Dashboard',
@@ -62,7 +68,7 @@ const RootLayout = () => {
               headerShown: false, // Hide header for the dashboard
             }}
           />
-        
+           
         </Stack>
       </SafeAreaProvider>
     </PaperProvider>

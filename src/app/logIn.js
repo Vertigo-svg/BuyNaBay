@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { SafeAreaView, View, Text, StyleSheet, Image, TouchableOpacity, Alert, Keyboard, Platform, ActivityIndicator } from 'react-native';
 import { TextInput, Button, Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
@@ -35,38 +35,148 @@ const LogInPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [attemptCount, setAttemptCount] = useState(0);
+  const [isFormValid, setIsFormValid] = useState(false);
+  
+  const usernameRef = useRef(null);
+  const passwordRef = useRef(null);
+
+  // Form validation
+  useEffect(() => {
+    const validateForm = () => {
+      const newErrors = {};
+      
+      if (username && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username)) {
+        newErrors.username = 'Please enter a valid email address';
+      }
+      
+      setErrors(newErrors);
+      setIsFormValid(username.length > 0 && password.length > 0 && Object.keys(newErrors).length === 0);
+    };
+    
+    validateForm();
+  }, [username, password]);
+
+  // Enhanced error handling with better user feedback
+  const showError = (title, message, onPress = null) => {
+    if (Platform.OS === 'web') {
+      alert(`${title}: ${message}`);
+      if (onPress) onPress();
+    } else {
+      Alert.alert(
+        title,
+        message,
+        [
+          {
+            text: 'OK',
+            onPress: onPress || (() => {}),
+            style: 'default'
+          }
+        ],
+        { cancelable: false }
+      );
+    }
+  };
+
+  const showSuccess = (title, message, onPress) => {
+    if (Platform.OS === 'web') {
+      alert(`${title}: ${message}`);
+      if (onPress) onPress();
+    } else {
+      Alert.alert(
+        title,
+        message,
+        [
+          {
+            text: 'Continue',
+            onPress: onPress,
+            style: 'default'
+          }
+        ],
+        { cancelable: false }
+      );
+    }
+  };
 
   const handleSignIn = async () => {
-    if (username && password) {
+    // Dismiss keyboard
+    Keyboard.dismiss();
+    
+    // Validate form
+    if (!username.trim()) {
+      showError('Missing Email', 'Please enter your email address', () => {
+        usernameRef.current?.focus();
+      });
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username.trim())) {
+      showError('Invalid Email', 'Please enter a valid email address', () => {
+        usernameRef.current?.focus();
+      });
+      return;
+    }
+
+    if (!password) {
+      showError('Missing Password', 'Please enter your password', () => {
+        passwordRef.current?.focus();
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
       // Check for Admin credentials first
-      if (username === 'Admin' && password === 'buynabayadmin123') {
-        router.push({ pathname: 'admin/dashboard' });
+      if (username.trim() === 'Admin@gmail.com' && password === 'buynabayadmin123') {
+        showSuccess('Welcome Admin!', 'Login successful. Redirecting to admin dashboard...', () => {
+          router.push({ pathname: 'admin/dashboard' });
+        });
         return;
       }
 
-      try {
-        const { data, error } = await supabase
-          .from('users')
-          .select('*')
-          .eq('email', username)
-          .single();
+      // Add delay to show loading state
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-        if (error) {
-          alert('Login failed. Please check your credentials.');
-          return;
-        }
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', username.trim())
+        .single();
 
-        if (data && data.password === password) {
-          console.log('Login successful:', data);
-          router.push({ pathname: 'dashboard/(tabs)/profile', params: { username } });
+      if (error) {
+        setAttemptCount(prev => prev + 1);
+        
+        if (attemptCount >= 2) {
+          showError(
+            'Too Many Failed Attempts', 
+            'Having trouble logging in? Try resetting your password or contact support.',
+            () => {
+              setAttemptCount(0);
+            }
+          );
         } else {
-          alert('Invalid email or password.');
+          showError('Login Failed', 'Please check your email and password and try again.');
         }
-      } catch (error) {
-        alert('An unexpected error occurred. Please try again.');
+        return;
       }
-    } else {
-      alert('Please enter both email and password.');
+
+      if (data && data.password === password) {
+        console.log('Login successful:', data);
+        showSuccess('Welcome Back!', `Hello ${data.name || 'User'}! You have successfully logged in.`, () => {
+          router.push({ pathname: 'dashboard/(tabs)/profile', params: { username: username.trim() } });
+        });
+      } else {
+        setAttemptCount(prev => prev + 1);
+        showError('Invalid Credentials', 'The email or password you entered is incorrect. Please try again.');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      showError('Connection Error', 'Unable to connect to server. Please check your internet connection and try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,11 +185,38 @@ const LogInPage = () => {
   };
 
   const handleForgotPasswordPress = () => {
-    router.push('/recover');
+    if (username.trim()) {
+      router.push({ pathname: '/recover', params: { email: username.trim() } });
+    } else {
+      router.push('/recover');
+    }
   };
 
   const handleSignUpPress = () => {
     router.push('/register');
+  };
+
+  // Enhanced input handlers
+  const handleUsernameChange = (text) => {
+    setUsername(text);
+    if (errors.username && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text)) {
+      setErrors(prev => ({ ...prev, username: null }));
+    }
+  };
+
+  const handlePasswordChange = (text) => {
+      setPassword(text);
+  };
+
+  // Auto-focus next input
+  const handleUsernameSubmit = () => {
+    passwordRef.current?.focus();
+  };
+
+  const handlePasswordSubmit = () => {
+    if (isFormValid && !isLoading) {
+      handleSignIn();
+    }
   };
 
   const [fontsLoaded] = useFonts({
@@ -88,13 +225,25 @@ const LogInPage = () => {
   });
 
   if (!fontsLoaded) {
-    return null;
+    return (
+      <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#FDAD00" />
+        <Text style={[styles.welcomeText, { marginTop: 10 }]}>Loading...</Text>
+      </SafeAreaView>
+    );
   }
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleBackArrowPress} style={styles.backArrow}>
+        <TouchableOpacity 
+          onPress={handleBackArrowPress} 
+          style={styles.backArrow}
+          activeOpacity={0.7}
+          accessible={true}
+          accessibilityLabel="Go back"
+          accessibilityRole="button"
+        >
           <Icon name="chevron-left" size={20} color="#FDAD00" />
         </TouchableOpacity>
         <View style={styles.logoContainer}>
@@ -105,35 +254,51 @@ const LogInPage = () => {
 
       {/* Content */}
       <View style={styles.content}>
+      <View style={styles.signInWrapper}>
         <Text style={styles.signInText}>Sign In</Text>
+        <View style={styles.titleUnderline} />
+      </View>
         <Text style={styles.welcomeText}>
-          Welcome to BuyNaBay! You can continue to manage your finances.
+          Welcome to BuyNaBay! You can continue to buy and sell products.
         </Text>
 
         {/* Email Input */}
         <View style={styles.inputContainer}>
           <TextInput
+            ref={usernameRef}
             label="Email Address"
             mode="flat"
             style={styles.input}
             placeholderTextColor="#FFF"
-            underlineColor="#FDAD00"
+            underlineColor={errors.username ? "#FF6B6B" : "#FDAD00"}
             selectionColor="#FDAD00"
             value={username}
-            onChangeText={setUsername}
+            onChangeText={handleUsernameChange}
+            onSubmitEditing={handleUsernameSubmit}
             textColor='#FFF'
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            blurOnSubmit={false}
+            returnKeyType="next"
+            accessible={true}
+            accessibilityLabel="Email address input"
             theme={{
               colors: {
                 placeholder: '#FFF',
-                primary: '#FDAD00',
+                primary: errors.username ? "#FF6B6B" : "#FDAD00",
               },
             }}
           />
+          {errors.username && (
+            <Text style={styles.errorText}>{errors.username}</Text>
+          )}
         </View>
 
         {/* Password Input */}
         <View style={styles.inputContainer}>
           <TextInput
+            ref={passwordRef}
             label="Password"
             mode="flat"
             secureTextEntry={!showPassword}
@@ -142,8 +307,14 @@ const LogInPage = () => {
             underlineColor="#FDAD00"
             selectionColor="#FDAD00"
             value={password}
-            onChangeText={setPassword}
+            onChangeText={handlePasswordChange}
+            onSubmitEditing={handlePasswordSubmit}
             textColor='#FFF'
+            autoCapitalize="none"
+            autoComplete="password"
+            returnKeyType="go"
+            accessible={true}
+            accessibilityLabel="Password input"
             theme={{
               colors: {
                 text: '#FFF',
@@ -152,13 +323,27 @@ const LogInPage = () => {
               },
             }}
           />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+          <TouchableOpacity 
+            onPress={() => setShowPassword(!showPassword)} 
+            style={styles.eyeIcon}
+            activeOpacity={0.7}
+            accessible={true}
+            accessibilityLabel={showPassword ? "Hide password" : "Show password"}
+            accessibilityRole="button"
+          >
             <Icon name={showPassword ? 'eye' : 'eye-slash'} size={20} color="#FFF" />
           </TouchableOpacity>
         </View>
 
         {/* Forgot Password */}
-        <TouchableOpacity onPress={handleForgotPasswordPress} style={styles.forgotPasswordContainer}>
+        <TouchableOpacity 
+          onPress={handleForgotPasswordPress} 
+          style={styles.forgotPasswordContainer}
+          activeOpacity={0.8}
+          accessible={true}
+          accessibilityLabel="Forgot your password"
+          accessibilityRole="button"
+        >
           <View style={styles.forgotPasswordWrapper}>
             <Icon name="lock" size={16} color="#FFF" />
             <Text style={styles.forgotPasswordText}>Forgot your password?</Text>
@@ -174,15 +359,35 @@ const LogInPage = () => {
         <Button
           mode="contained"
           onPress={handleSignIn}
-          style={styles.signInButton}
+          style={[
+            styles.signInButton,
+            {
+              opacity: isFormValid && !isLoading ? 1 : 0.7,
+              backgroundColor: isFormValid && !isLoading ? '#FDAD00' : '#A0A0A0'
+            }
+          ]}
           labelStyle={styles.signInButtonText}
+          disabled={!isFormValid || isLoading}
+          loading={isLoading}
+          accessible={true}
+          accessibilityLabel="Sign in button"
+          accessibilityRole="button"
         >
-          Sign In
+          {isLoading ? 'Signing In...' : 'Sign In'}
         </Button>
 
         {/* Signup Prompt */}
-        <TouchableOpacity onPress={handleSignUpPress} style={styles.signupTextContainer}>
-          <Text style={styles.signupText}>Doesn't have an account? <Text style={styles.signupLink}>Signup</Text></Text>
+        <TouchableOpacity 
+          onPress={handleSignUpPress} 
+          style={styles.signupTextContainer}
+          activeOpacity={0.8}
+          accessible={true}
+          accessibilityLabel="Don't have an account? Sign up"
+          accessibilityRole="button"
+        >
+          <Text style={styles.signupText}>
+            Doesn't have an account? <Text style={styles.signupLink}>Signup</Text>
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -235,8 +440,19 @@ const styles = StyleSheet.create({
     fontWeight: 900,
     fontFamily: 'Poppins',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 5,
   },
+  titleUnderline: {
+    width: 100,
+    height: 4,
+    backgroundColor: '#FDAD00',
+    borderRadius: 2,
+    marginBottom: 5,
+    },
+  signInWrapper: {
+    alignItems: 'center',
+    marginBottom: 10,
+    },
   welcomeText: {
     fontSize: 14,
     color: '#FFF',
@@ -263,6 +479,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 10,
     top: 20,
+  },
+  errorText: {
+    color: '#FF6B6B',
+    fontSize: 12,
+    marginTop: 5,
+    marginLeft: 5,
+    fontFamily: 'Poppins_400Regular',
   },
   forgotPasswordContainer: {
     alignItems: 'center',
