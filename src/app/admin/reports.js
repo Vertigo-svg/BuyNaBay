@@ -1,124 +1,150 @@
-import React, { useState } from 'react';
-import { SafeAreaView, Text, StyleSheet, View, FlatList, TouchableOpacity } from 'react-native';
-import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import AppLoading from 'expo-app-loading';
+// app/admin/reports.js
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_700Bold } from '@expo-google-fonts/poppins';
+import * as SplashScreen from 'expo-splash-screen';
+import { FontAwesome5 } from '@expo/vector-icons';
 
-const initialReports = [
-  { id: '1', title: 'Report A', date: '2025-01-01', status: 'Resolved' },
-  { id: '2', title: 'Report B', date: '2025-01-03', status: 'Pending' },
-  { id: '3', title: 'Report C', date: '2025-01-05', status: 'In Progress' },
-];
-
-const AdminReports = () => {
-  const [reports, setReports] = useState(initialReports);
+const ReportsScreen = () => {
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
+    Poppins_500Medium,
     Poppins_700Bold,
   });
 
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  useEffect(() => {
+    if (!fontsLoaded) {
+      SplashScreen.preventAutoHideAsync();
+    }
+  }, []);
+
   if (!fontsLoaded) {
-    return <AppLoading />;
+    return null;
   }
 
-  const handleResolve = (id) => {
-    setReports((prevReports) =>
-      prevReports.map((report) =>
-        report.id === id ? { ...report, status: 'Resolved' } : report
-      )
-    );
-  };
-
-  const renderReport = ({ item }) => (
-    <View style={styles.reportCard}>
-      <View style={styles.reportDetails}>
-        <Text style={styles.reportTitle}>{item.title}</Text>
-        <Text style={styles.reportDate}>Date: {item.date}</Text>
-        <Text style={styles.reportStatus}>Status: {item.status}</Text>
-      </View>
-      {item.status !== 'Resolved' && (
-        <TouchableOpacity
-          style={styles.resolveButton}
-          onPress={() => handleResolve(item.id)}
-        >
-          <Icon name="check" size={16} color="#fff" />
-          <Text style={styles.resolveButtonText}>Resolve</Text>
-        </TouchableOpacity>
-      )}
-    </View>
-  );
-
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Reports</Text>
-      <FlatList
-        data={reports}
-        keyExtractor={(item) => item.id}
-        renderItem={renderReport}
-        contentContainerStyle={styles.listContainer}
-      />
-    </SafeAreaView>
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>Reports & Analytics</Text>
+      <Text style={styles.subtitle}>Here you can find various reports and insights into your marketplace.</Text>
+
+      <View style={styles.reportSection}>
+        <View style={styles.reportCard}>
+          <FontAwesome5 name="shopping-cart" size={30} color="#1B1B41" style={styles.cardIcon} />
+          <Text style={styles.cardTitle}>Sales Overview</Text>
+          <Text style={styles.cardText}>Total sales, average order value, and sales trends over time.</Text>
+        </View>
+
+        <View style={styles.reportCard}>
+          <FontAwesome5 name="users" size={30} color="#1B1B41" style={styles.cardIcon} />
+          <Text style={styles.cardTitle}>User Activity</Text>
+          <Text style={styles.cardText}>New user registrations, active users, and user retention rates.</Text>
+        </View>
+      </View>
+
+      <View style={styles.reportSection}>
+        <View style={styles.reportCard}>
+          <FontAwesome5 name="box-open" size={30} color="#1B1B41" style={styles.cardIcon} />
+          <Text style={styles.cardTitle}>Product Performance</Text>
+          <Text style={styles.cardText}>Top-selling products, most viewed items, and inventory status.</Text>
+        </View>
+
+        <View style={styles.reportCard}>
+          <FontAwesome5 name="chart-line" size={30} color="#1B1B41" style={styles.cardIcon} />
+          <Text style={styles.cardTitle}>Revenue Breakdown</Text>
+          <Text style={styles.cardText}>Detailed look at revenue sources and profitability.</Text>
+        </View>
+      </View>
+
+      <View style={styles.placeholderCard}>
+        <FontAwesome5 name="wrench" size={40} color="#FDAD00" />
+        <Text style={styles.placeholderText}>More reports coming soon!</Text>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1b1b41',
     padding: 20,
+    backgroundColor: '#F5F7FA',
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontFamily: 'Poppins_700Bold',
-    color: '#FDAD00',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  listContainer: {
-    paddingBottom: 20,
-  },
-  reportCard: {
-    backgroundColor: '#FDAD00',
-    padding: 15,
-    borderRadius: 10,
+    color: '#1B1B41',
     marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontFamily: 'Poppins_400Regular',
+    color: '#666',
+    marginBottom: 30,
+  },
+  reportSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 20,
+    flexWrap: 'wrap',
+  },
+  reportCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 20,
+    width: '48%', // Adjust based on your layout needs
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
     alignItems: 'center',
+    marginBottom: 20,
   },
-  reportDetails: {
-    flex: 1,
+  cardIcon: {
+    marginBottom: 15,
+    color: '#FDAD00', // Changed icon color
   },
-  reportTitle: {
-    fontSize: 16,
-    fontFamily: 'Poppins_700Bold',
-    color: '#1b1b41',
+  cardTitle: {
+    fontSize: 18,
+    fontFamily: 'Poppins_600SemiBold', // Assuming you have Poppins_600SemiBold, if not, use Poppins_700Bold or Poppins_500Medium
+    color: '#1B1B41',
+    marginBottom: 5,
+    textAlign: 'center',
   },
-  reportDate: {
+  cardText: {
     fontSize: 14,
     fontFamily: 'Poppins_400Regular',
-    color: '#1b1b41',
+    color: '#555',
+    textAlign: 'center',
   },
-  reportStatus: {
-    fontSize: 14,
-    fontFamily: 'Poppins_400Regular',
-    color: '#1b1b41',
-  },
-  resolveButton: {
-    backgroundColor: '#1b1b41',
-    flexDirection: 'row',
+  placeholderCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
+    marginTop: 20,
+    borderWidth: 2,
+    borderColor: '#FDAD00',
+    borderStyle: 'dashed',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
-  resolveButtonText: {
-    fontSize: 14,
-    fontFamily: 'Poppins_700Bold',
+  placeholderText: {
+    fontSize: 18,
+    fontFamily: 'Poppins_500Medium',
     color: '#FDAD00',
-    marginLeft: 5,
+    marginTop: 15,
   },
 });
 
-export default AdminReports;
+export default ReportsScreen;
