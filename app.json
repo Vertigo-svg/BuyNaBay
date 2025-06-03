@@ -4,6 +4,7 @@
     "slug": "buynabay",
     "scheme": "com.BuyNaBay.app",
     "version": "1.0.0",
+    "owner": "gnegr",
     "orientation": "portrait",
     "icon": "./assets/OfficialBuyNaBay.png",
     "userInterfaceStyle": "light",
@@ -34,7 +35,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "2c9e5d84-a8c7-481c-a613-d52cdd15e5ae"
+        "projectId": "5d5fbf56-689a-468f-b65b-4ed137d58a8c"
       }
     }
   }

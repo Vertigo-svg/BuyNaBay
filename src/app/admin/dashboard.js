@@ -96,7 +96,6 @@ const Dashboard = () => {
             <>
               {renderSummaryCard('Total Products', dashboardData.totalProducts, 'box')}
               {renderSummaryCard('Total Users', dashboardData.totalUsers, 'users')}
-              {renderSummaryCard('Total Sales', `₱${dashboardData.totalSales.toLocaleString()}`, 'money-bill-wave')}
             </>
           ) : (
             <Text style={styles.errorText}>Failed to load dashboard data</Text>
